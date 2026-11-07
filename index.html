@@ -1,0 +1,2131 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Warrior Battle — Four Champions</title><style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;position:relative;background:radial-gradient(ellipse at 50% 0%,#26394a,#0c131e 80%);color:#f1f5fa;font-family:system-ui,Arial,sans-serif}main{max-width:2100px;margin:auto;padding:18px}h1{margin:0;font-size:clamp(23px,4vw,36px)}.sub{color:#a6bac9;margin:5px 0 14px}.panel{background:#182535;border:1px solid #3a4b5a;border-radius:13px;padding:12px}.top{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.player{flex:1;min-width:160px;opacity:.65;transition:.2s}.player.active{opacity:1;outline:2px solid #d8c687}.player.dead{opacity:.28}.player strong{display:block}.hp{height:9px;background:#3e4853;border-radius:10px;overflow:hidden;margin:8px 0}.hp span{display:block;height:100%;background:#51c87d;transition:width .2s}.meta{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#c8d5e0}.toolbar{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px} .toolbar{display:none!important}button{border:1px solid #718196;background:#2a3e54;color:#fff;border-radius:8px;padding:10px 15px;font-weight:700;cursor:pointer}button:hover{background:#3b5571}button:disabled{opacity:.4;cursor:not-allowed}#boardWrap{position:relative;width:100%;min-height:0;background:#101b29;border:1px solid #4b5d69;border-radius:18px;padding:20px;overflow:auto}canvas{display:block;margin:auto;max-width:100%;height:auto;touch-action:manipulation;cursor:pointer}#status{font-weight:650;min-height:24px}.legend{display:flex;gap:15px;flex-wrap:wrap;font-size:13px;color:#cbd5e1;margin:12px 0}.legend span{white-space:nowrap}.note{font-size:13px;color:#acbdc9;line-height:1.5;margin-top:12px}#log{color:#dce5eb;font-size:13px;min-height:21px}kbd{background:#30445b;padding:2px 5px;border-radius:4px}
+[hidden]{display:none!important}
+
+
+
+
+
+
+
+#menuScreen{position:fixed;inset:0;z-index:9500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:24px;background:radial-gradient(ellipse at 50% 0%,#2b4357,#0a111a 78%)}
+#menuScreen h1{margin:0;font-size:clamp(28px,5vw,50px);text-align:center;letter-spacing:2px}
+#menuScreen .mHint{margin:0;color:#a6bac9}
+#localPlayBtn{font-size:22px;padding:16px 46px;background:#3c7a52;border:2px solid #7fcf98;border-radius:12px;cursor:pointer;font-weight:800;color:#fff;transition:transform .15s,background .15s;box-shadow:0 8px 24px #000a}
+#localPlayBtn:hover,#localPlayBtn:focus-visible{background:#48925f;transform:translateY(-2px);outline:none}
+#localPlayBtn:active{transform:translateY(0)}
+#tutorialBtn{font-size:22px;padding:16px 46px;background:#2a3e54;border:2px solid #8aa0b4;border-radius:12px;cursor:pointer;font-weight:800;color:#fff;transition:transform .15s,background .15s;box-shadow:0 8px 24px #000a}
+#tutorialBtn:hover,#tutorialBtn:focus-visible{background:#3b5571;transform:translateY(-2px);outline:none}
+#tutorialScreen{position:fixed;inset:0;z-index:9600;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(5,10,16,.88)}
+#tutorialScreen[hidden]{display:none!important}
+#tutorialPanel{width:min(860px,100%);max-height:88vh;overflow-y:auto;background:#182535;border:2px solid #8aa0b4;border-radius:16px;padding:28px 32px;box-shadow:0 18px 60px #000d;line-height:1.6}
+#tutorialPanel h1{font-size:30px;margin:0 0 4px}
+#tutorialPanel h2{font-size:19px;color:#d8c687;margin:26px 0 8px;border-bottom:1px solid #35485a;padding-bottom:5px}
+#tutorialPanel p,#tutorialPanel li{font-size:14.5px;color:#dce5eb}
+#tutorialPanel ul{padding-left:22px;margin:6px 0}
+#tutorialPanel table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px;text-align:center}
+#tutorialPanel th{color:#bcd0df;padding:6px;border-bottom:1px solid #35485a}
+#tutorialPanel td{padding:6px;border-bottom:1px solid #26394a}
+#tutorialPanel td:first-child{text-align:left}
+#tutClose{margin-top:26px;font-size:17px;padding:12px 34px}
+#tutClose:hover{background:#3b5571}
+#tutPlayBtn{font-size:22px;padding:16px 46px;background:#6b4d8f;border:2px solid #b39ddb;border-radius:12px;cursor:pointer;font-weight:800;color:#fff;transition:transform .15s,background .15s;box-shadow:0 8px 24px #000a}
+#tutPlayBtn:hover,#tutPlayBtn:focus-visible{background:#7d5ba3;transform:translateY(-2px);outline:none}
+#tutPlayBtn:active{transform:translateY(0)}
+#tutBanner{position:fixed;top:0;left:0;right:0;z-index:9400;display:flex;align-items:center;gap:16px;padding:13px 18px;background:rgba(9,16,25,.97);border-bottom:2px solid #d8c687;font-size:15.5px;color:#eaf2f8;box-shadow:0 4px 18px #000a}
+#tutBanner[hidden]{display:none!important}
+#tutProg{font-weight:800;color:#d8c687;white-space:nowrap}
+#tutText{flex:1;line-height:1.45}
+#tutSkip{white-space:nowrap;padding:8px 18px}
+#sound{position:absolute;top:12px;right:12px;z-index:12;width:46px;height:46px;padding:0;border-radius:50%;font-size:22px;line-height:1;background:#223449;border:1px solid #8aa0b4;box-shadow:0 4px 14px #000b;display:flex;align-items:center;justify-content:center;cursor:pointer}
+#sound:hover{background:#35516c;border-color:#d8c687}
+#statsBtn{width:46px;height:46px;padding:0;font-size:22px;border-radius:50%;background:#334b60;border-color:#9fb4c6;box-shadow:0 2px 10px #000b}
+.craftAction{display:block;width:100%;margin-top:7px;padding:9px 10px;text-align:left;font-size:13px;border-color:#627d91;background:#263c50}.craftAction:hover{background:#35536b}#craftMenu p{line-height:1.4}
+#statsModal{position:fixed;inset:0;z-index:9600;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(5,10,16,.88)}
+#statsModal[hidden]{display:none!important}
+#statsPanel{width:min(720px,100%);max-height:88vh;overflow-y:auto;background:#182535;border:2px solid #8aa0b4;border-radius:16px;padding:24px 28px;box-shadow:0 18px 60px #000d;line-height:1.55}
+#statsPanel h1{font-size:26px;margin:0 0 4px}
+#statsPanel h2{font-size:17px;color:#d8c687;margin:20px 0 6px;border-bottom:1px solid #35485a;padding-bottom:4px}
+#statsPanel p,#statsPanel li{font-size:14px;color:#dce5eb}
+#statsPanel ul{padding-left:22px;margin:6px 0}
+#statsPanel table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px;text-align:center}
+#statsPanel th{color:#bcd0df;padding:5px;border-bottom:1px solid #35485a}
+#statsPanel td{padding:5px;border-bottom:1px solid #26394a}
+#statsPanel td:first-child{text-align:left}
+#statsClose{margin-top:20px;font-size:16px;padding:10px 28px}
+#statsClose:hover{background:#3b5571}
+#setupScreen{position:fixed;inset:0;z-index:9550;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:24px;background:rgba(5,10,16,.9)}
+#setupScreen[hidden]{display:none!important}
+#setupPanel{width:min(420px,100%);padding:28px 30px;text-align:center;border-color:#8aa0b4;box-shadow:0 18px 60px #000d}
+#setupPanel h2{margin:0 0 20px;font-size:26px}
+.setupRow{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:14px 0;font-size:16px;font-weight:700}
+.setupRow select{background:#2a3e54;color:#fff;border:1px solid #718196;border-radius:8px;padding:9px 12px;font-size:15px;font-weight:700;min-width:150px}
+#setupHint{min-height:22px;color:#9fc7ae;font-size:14px;margin:16px 0 6px}
+#startBattle{width:100%;font-size:19px;padding:13px;background:#3c7a52;border-color:#7fcf98;margin-top:8px}
+#startBattle:hover{background:#48925f}
+#setupBack{width:100%;padding:10px;margin-top:8px}
+#tutNudge{position:fixed;top:66px;left:50%;transform:translateX(-50%);z-index:9450;background:#472f3a;border:1.5px solid #c5756c;color:#ffd9d2;padding:11px 22px;border-radius:11px;font-size:15px;font-weight:650;box-shadow:0 8px 24px #000d;opacity:0;pointer-events:none;transition:opacity .25s;max-width:min(600px,92vw);text-align:center;line-height:1.45}
+#tutNudge.show{opacity:1}
+
+#onlineScreen{position:fixed;inset:0;z-index:9700;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(5,10,16,.94)}
+#onlineScreen[hidden]{display:none!important}
+#onlinePanel{width:min(560px,100%);max-height:90vh;overflow:auto;padding:26px;border:2px solid #79a9bd;box-shadow:0 18px 60px #000d}
+#onlinePanel h2{margin:0 0 8px;font-size:27px}
+#onlinePanel p{color:#c4d2dd;line-height:1.5}
+.onlineField{display:flex;flex-direction:column;gap:6px;margin:13px 0;text-align:left}
+.onlineField input,.onlineField select{width:100%;background:#101b29;color:#fff;border:1px solid #718196;border-radius:8px;padding:11px 12px;font:inherit}
+.onlineActions{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+.onlineActions button{flex:1;min-width:150px}
+#onlineCodeDisplay{font-size:28px;letter-spacing:5px;font-weight:900;color:#f2d68a;text-align:center;padding:12px;background:#101b29;border:1px dashed #9eafbe;border-radius:10px;user-select:all}
+#onlinePlayers{line-height:1.8;color:#dce5eb;background:#101b29;border-radius:9px;padding:10px 14px;margin:10px 0}
+#onlineError{min-height:22px;color:#ffb9a9;font-size:13px}
+#onlineStart{width:100%;font-size:18px;padding:13px;background:#3c7a52;border-color:#7fcf98}
+#onlineBack{width:100%;margin-top:8px}
+#onlineGameNotice{max-width:1100px;margin:0 auto 10px;padding:9px 13px;text-align:center;color:#cde7f3;font-size:13px}
+#onlineGameNotice[hidden]{display:none!important}
+#onlineBtn{font-size:19px;padding:14px 36px;background:#246078;border:2px solid #7ec3dc;border-radius:12px;font-weight:800;color:#fff;box-shadow:0 8px 24px #000a}
+#onlineBtn:hover{background:#2f7894}
+.menuSection{display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px 26px;border:1px solid #526c80;border-radius:18px;background:#132333aa;min-width:min(420px,92vw)}.menuSection h2{margin:0;color:#9edcf0;letter-spacing:1px;font-size:20px}.menuSection.local{border-color:#537c60}.menuSection.local h2{color:#9de0ae}.menuSection .mHint{font-size:13px;text-align:center;margin:0 0 4px}.onlineGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.onlineGrid button{min-width:0}.onlineColorRow{display:grid;grid-template-columns:1fr 1fr;gap:10px}.onlineColorRow label{display:flex;flex-direction:column;gap:5px;font-size:13px;color:#c4d2dd}.onlineColorRow input{width:100%;height:40px;background:#101b29;border:1px solid #718196;border-radius:8px;padding:3px}.onlineSmall{font-size:12px!important;color:#9fb3c2!important;margin:4px 0!important}
+</style></head><body>
+<div id="menuScreen">
+ <h1>⚔️ Warrior Battle: Four Champions</h1>
+ <p class="mHint">Four warriors. One battlefield. Last champion standing wins.</p>
+ <section class="menuSection online"><h2>🌐 Online Mode</h2><p class="mHint">Play with friends, find a match, or watch a battle.</p><button id="onlineBtn">🌐 Open Online Mode</button></section>
+ <section class="menuSection local"><h2>🎮 Local Play</h2><button id="localPlayBtn">Start Local Game</button></section>
+ <button id="tutorialBtn">📖 Rules</button>
+ <button id="tutPlayBtn">🎓 Interactive Tutorial</button>
+</div>
+<div id="onlineScreen" hidden>
+ <div id="onlinePanel" class="panel" role="dialog" aria-modal="true" aria-label="Online multiplayer">
+  <h2>🌐 Online Multiplayer</h2>
+  <p>Create a private room and share its code with friends, or join a room someone else created. Local Play and the tutorial will still work normally.</p>
+  <div class="onlineField"><label for="onlineName">Your player name</label><input id="onlineName" maxlength="18" placeholder="Player" value="Player"></div>
+  <div class="onlineColorRow"><label>Your team color<input id="onlineColor" type="color" value="#368cfa"></label><label>Match size<select id="onlinePlayerCount"><option value="2">2 players</option><option value="3">3 players</option><option value="4">4 players</option></select></label></div>
+  <div class="onlineActions"><button id="onlineCreate">➕ Create Private Room</button><button id="onlineQuickMatch">⚔️ Find Public Match</button></div>
+  <div class="onlineActions"><button id="onlineSpectateList">👁️ Browse Matches to Watch</button><button id="onlineSavedList">💾 Saved Matches</button></div>
+  <div id="onlineExtraList" hidden></div>
+  <div class="onlineField"><label for="onlineJoinCode">Room code</label><input id="onlineJoinCode" maxlength="6" autocomplete="off" placeholder="Enter 6-character code" style="text-transform:uppercase;letter-spacing:3px"></div>
+  <div class="onlineActions"><button id="onlineJoin">🚪 Join Room</button><button id="onlineWatchCode">👁️ Watch Room</button></div>
+  <div id="onlineLobby" hidden>
+   <h3 style="margin:16px 0 7px">Your room</h3>
+   <div id="onlineCodeDisplay">------</div>
+   <div class="onlineActions"><button id="onlineCopyCode">📋 Copy Room Code</button></div>
+   <div id="onlinePlayers"></div>
+   <div class="onlineActions"><button id="onlineSaveMatch">💾 Save Match</button></div>
+   <p id="onlineWaitText">Waiting for another player to join...</p>
+   <button id="onlineStart" hidden>⚔️ Start Online Match</button>
+  </div>
+  <p id="onlineError" role="status"></p>
+  <button id="onlineBack">← Back to Main Menu</button>
+ </div>
+</div>
+<div id="tutorialScreen" hidden>
+ <div id="tutorialPanel" role="dialog" aria-modal="true" aria-label="How to play">
+  <h1>📜 Game Rules</h1>
+  <p>Four champions. A 20×20 battlefield. Gather resources, raise buildings, upgrade your army, and be the last champion standing.</p>
+
+  <h2>🎯 Goal</h2>
+  <p>Eliminate every enemy unit. You lose when your last warrior falls — the last player with at least one unit alive wins.</p>
+
+  <h2>🗺️ The Battlefield</h2>
+  <ul>
+   <li><b>🌿 Field</b> — open ground. The only place you can build.</li>
+   <li><b>🌲 Forest</b> — gather wood here.</li>
+   <li><b>🧱 Brick tile</b> — gather brick here.</li>
+   <li><b>⛰️ Mountain</b> — impassable until you own a pickaxe; gather ore once you can enter.</li>
+  </ul>
+
+  <h2>🕹️ Taking Your Turn</h2>
+  <ul>
+   <li>Click one of your warriors to select it, then click a highlighted <b>🟢 green tile</b> to move — one square per click, including diagonals.</li>
+   <li>Each unit has limited <b>movement steps</b> per turn (shown in the stats readout). Moving onto a resource tile positions you to gather.</li>
+   <li>Press <b>End Turn</b> or hit <kbd>Enter</kbd> to pass to the next champion. Press <kbd>Q</kbd>/<kbd>E</kbd> to rotate the board view.</li>
+  </ul>
+
+  <h2>⚔️ Combat</h2>
+  <ul>
+   <li>Click a highlighted <b>🔴 red enemy</b> to attack. Attacking uses that unit's action for the rest of the turn (it can't move, gather, or build afterwards) — but your turn continues with your other units.</li>
+   <li>Every unit has an <b>attack</b> value (damage dealt) and a <b>counter</b> value (damage returned).</li>
+   <li>A surviving defender <b>counterattacks</b> if its counter is above 0 <i>and</i> you're within its range. A counter of 0 means no retaliation.</li>
+   <li><b>Capture:</b> melee units that finish off an enemy take their square, like a chess capture. Ranged kills (arrows, catapult stones) don't move the attacker.</li>
+  </ul>
+
+  <h2>🧑‍🤝‍🧑 Unit Classes</h2>
+  <table>
+   <tr><th>Unit</th><th>Health</th><th>Move</th><th>Range</th><th>Attack</th><th>Counter</th></tr>
+   <tr><td>⚔️ Warrior</td><td>10</td><td>3</td><td>0 (melee)</td><td>5</td><td>4</td></tr>
+   <tr><td>🐎 Knight</td><td>10</td><td>5</td><td>0 (melee)</td><td>6</td><td>3</td></tr>
+   <tr><td>✨ Paladin</td><td>10</td><td>5</td><td>0 (melee)</td><td>8</td><td>5</td></tr>
+   <tr><td>🛡️ Guard</td><td>15</td><td>3</td><td>0 (melee)</td><td>3</td><td>7</td></tr>
+   <tr><td>🗡️ Swordsman</td><td>15</td><td>2</td><td>0 (melee)</td><td>9</td><td>4</td></tr>
+   <tr><td>🏹 Archer</td><td>10</td><td>3</td><td>2</td><td>7</td><td>2</td></tr>
+   <tr><td>🪨 Catapult</td><td>10</td><td>1</td><td>4</td><td>9</td><td>0</td></tr>
+  </table>
+  <p>Range 0 means adjacent melee; ranged units use their listed tile distance (diagonals count).</p>
+
+  <h2>🌲 Resources &amp; Gathering</h2>
+  <ul>
+   <li>Start your turn standing on a resource tile and <b>click the floating icon</b> above your warrior to collect. Gathering ends that unit's movement for the turn, but not your turn.</li>
+   <li><b>Wood 🪵</b> — forests. Without an axe, collect 1 wood every 2 harvesting turns. A normal axe collects 1 wood per turn; a reinforced axe collects 2. Leaving the forest resets progress.</li>
+   <li><b>Brick 🧱</b> — brick tiles, one turn.</li>
+   <li><b>Ore ⛏️</b> — you need a pickaxe to enter mountains. A normal pickaxe collects 1 ore every 2 mining turns; a reinforced pickaxe collects 1 ore per turn. Leaving the mountain resets mining progress.</li>
+   <li>Resources and tools are shared across all of your units; each unit can gather once per turn.</li>
+  </ul>
+
+  <h2>🛠️ Crafting</h2>
+  <ul>
+   <li>Spend <b>4 wood</b> to craft an <b>🪓 axe</b> or <b>⛏️ pickaxe</b>. Reinforce either tool for <b>2 wood + 3 ore</b>: a reinforced axe gathers 2 wood per turn, while a reinforced pickaxe gathers 1 ore per turn. Crafting or reinforcing ends your turn.</li>
+  </ul>
+
+  <h2>⛺ Camps, Villages &amp; Fortresses</h2>
+  <ul>
+   <li><b>Camp:</b> stand on a field with 1 wood + 1 brick, click the floating ⛺ icon. Building ends your turn.</li>
+   <li><b>Village:</b> upgrade your camp with 2 wood + 2 brick + 1 ore. Ends your turn.</li>
+   <li><b>Fortress:</b> upgrade your village with 3 wood + 3 brick + 3 ore. Ends your turn.</li>
+   <li><b>Claiming enemy buildings:</b> move a unit onto an enemy camp, town, or fortress and keep that same unit there until your next turn begins. Select the unit and click the floating 🚩 flag to claim the structure for your team. Leaving the tile or being defeated before then resets the claim. Claiming uses up that unit's actions for the turn.</li>
+   <li><b>Summoning:</b> deselect your units, then click an empty building you own. Camps summon a Warrior (1 ore) only while you have zero Warriors. Villages allow up to 2 Warriors, plus one each of Knight/Guard/Archer (2 ore). Fortresses allow up to 3 Warriors, two each of Knight/Guard/Archer, and one each of Paladin/Catapult/Swordsman (3 ore). Freshly summoned units can't move until your next turn.</li>
+  </ul>
+
+  <h2>⬆️ Upgrading Units</h2>
+  <ul>
+   <li>Select a unit and click the floating ⬆️ icon: Warriors become Knights, Archers, or Guards for <b>2 ore</b>; Knights → Paladins, Archers → Catapults, Guards → Swordsmen for <b>3 ore</b>.</li>
+   <li>Class limits match the fortress summoning limits. Current HP carries over (up to the new class maximum), and the upgraded unit can't act again this turn.</li>
+  </ul>
+
+  <h2>📌 Key Rules to Remember</h2>
+  <ul>
+   <li>Attacking does <b>not</b> end your turn — only that unit's actions. Your other units can still move, gather, and build.</li>
+   <li>You may attack <b>before</b> using all of a unit's movement steps.</li>
+   <li>Each unit may gather <b>once per turn</b>, and cannot move after gathering (other units still can).</li>
+   <li>Mountains block diagonal corner-cutting: you can't slip between two adjacent mountains without a pickaxe.</li>
+   <li>Leaving a forest before finishing the two-turn wood harvest <b>resets your progress</b>.</li>
+   <li>Resources and tools are <b>shared</b> across all of your units — but each unit tracks its own HP and actions.</li>
+   <li>The building you summon from must be <b>unoccupied</b>, and summoned units can't move until your next turn.</li>
+   <li>Only <b>melee</b> kills capture the enemy's square — ranged kills (archer, catapult) leave the attacker in place.</li>
+   <li>Champions with no living units are <b>skipped automatically</b> until only one remains.</li>
+  </ul>
+
+  <h2>⌨️ Quick Controls</h2>
+  <ul>
+   <li><kbd>Enter</kbd> — end your turn &nbsp;·&nbsp; <kbd>Q</kbd>/<kbd>E</kbd> — rotate the board &nbsp;·&nbsp; 🔊 button (top-right of the map) — sound on/off</li>
+  </ul>
+
+  <button id="tutClose">← Back to Menu</button>
+ </div>
+</div>
+<div id="tutBanner" hidden>
+ <span id="tutProg"></span>
+ <span id="tutText"></span>
+ <button id="tutSkip">Skip Tutorial</button>
+</div>
+<div id="tutNudge"></div>
+<div id="setupScreen" hidden>
+ <div class="panel" id="setupPanel">
+  <h2>⚔️ Battle Setup</h2>
+  <div class="setupRow"><label for="playerCount">Players</label>
+   <select id="playerCount"><option value="2">2 players</option><option value="3">3 players</option><option value="4" selected>4 players</option></select></div>
+  <div class="setupRow"><label for="botCount">Bots</label><select id="botCount"></select></div>
+  <p id="setupHint"></p>
+  <button id="startBattle">⚔️ Start Battle</button>
+  <button id="setupBack">← Back to Menu</button>
+ </div>
+</div>
+<main><h1>⚔️ Warrior Battle: Four Champions — Mountain Access Edition</h1><p class="sub">Four warriors. A 20×20 battlefield. Last champion standing wins. Now with resource gathering, sword strikes, counterattacks, and capture moves!</p><section class="top" id="players"></section><div class="toolbar panel"><div><div id="status"></div><div id="log"></div><div id="resourceHint" style="font-size:12px;color:#b5e4c3;margin-top:5px"></div></div><div><button id="end" hidden>End Turn</button></div></div><div id="newMapModal" role="dialog" aria-modal="true" aria-labelledby="newMapTitle" style="display:none;position:fixed;inset:0;z-index:9999;background:#000b;align-items:center;justify-content:center;padding:20px"><div class="panel" style="width:min(390px,100%);padding:24px;text-align:center;box-shadow:0 14px 45px #000c;border:1px solid #b5c7d4"><h2 id="newMapTitle" style="margin:0 0 10px">Start a New Map?</h2><p style="margin:0 0 20px;color:#cbd5e1">Your current game progress will be lost.</p><button id="newMapCancel" style="margin-right:10px">Cancel</button><button id="newMapConfirm" style="background:#7b3a37;border-color:#c5756c">New Map</button></div></div><div id="homeConfirmModal" role="dialog" aria-modal="true" aria-labelledby="homeConfirmTitle" style="display:none;position:fixed;inset:0;z-index:10000;background:#000b;align-items:center;justify-content:center;padding:20px"><div class="panel" style="width:min(390px,100%);padding:24px;text-align:center;box-shadow:0 14px 45px #000c;border:1px solid #b5c7d4"><h2 id="homeConfirmTitle" style="margin:0 0 10px">Return to Main Menu?</h2><p style="margin:0 0 20px;color:#cbd5e1">Are you sure you want to leave this game? Your current battle progress will be lost.</p><button id="homeConfirmCancel" style="margin-right:10px">Stay in Game</button><button id="homeConfirmLeave" style="background:#7b3a37;border-color:#c5756c">Leave Game</button></div></div><div id="resignModal" role="dialog" aria-modal="true" aria-labelledby="resignTitle" style="display:none;position:fixed;inset:0;z-index:9999;background:#000b;align-items:center;justify-content:center;padding:20px"><div class="panel" style="width:min(390px,100%);padding:24px;text-align:center;box-shadow:0 14px 45px #000c;border:1px solid #c5756c"><h2 id="resignTitle" style="margin:0 0 10px">Resign?</h2><p style="margin:0 0 20px;color:#cbd5e1">A bot will take control of your team and continue playing with all your pieces. You will no longer control this team.</p><button id="resignCancel" style="margin-right:10px">Cancel</button><button id="resignConfirm" style="background:#7b3a37;border-color:#c5756c">Resign</button></div></div>
+<div id="statsModal" role="dialog" aria-modal="true" aria-label="Stats and costs" hidden>
+ <div id="statsPanel">
+  <h1>📊 Stats &amp; Costs</h1>
+
+  <h2>🧑‍🤝‍🧑 Unit Stats</h2>
+  <table>
+   <tr><th>Unit</th><th>Health</th><th>Move</th><th>Range</th><th>Attack</th><th>Counter</th></tr>
+   <tr><td>⚔️ Warrior</td><td>10</td><td>3</td><td>0 (melee)</td><td>5</td><td>4</td></tr>
+   <tr><td>🐎 Knight</td><td>10</td><td>5</td><td>0 (melee)</td><td>6</td><td>3</td></tr>
+   <tr><td>✨ Paladin</td><td>10</td><td>5</td><td>0 (melee)</td><td>8</td><td>5</td></tr>
+   <tr><td>🛡️ Guard</td><td>15</td><td>3</td><td>0 (melee)</td><td>3</td><td>7</td></tr>
+   <tr><td>🗡️ Swordsman</td><td>15</td><td>2</td><td>0 (melee)</td><td>9</td><td>4</td></tr>
+   <tr><td>🏹 Archer</td><td>10</td><td>3</td><td>2</td><td>7</td><td>2</td></tr>
+   <tr><td>🪨 Catapult</td><td>10</td><td>1</td><td>4</td><td>9</td><td>0</td></tr>
+  </table>
+  <p>Range 0 = adjacent melee. Ranged units attack at their listed tile distance (diagonals count). A defender counterattacks only if its counter is above 0 and you're within its range.</p>
+
+  <h2>⛺ Structure Costs</h2>
+  <ul>
+   <li><b>Camp:</b> 1 🪵 wood + 1 🧱 brick — build on any field tile (ends turn)</li>
+   <li><b>Village:</b> 2 🪵 + 2 🧱 + 1 ⛏️ ore — upgrade your camp (ends turn)</li>
+   <li><b>Fortress:</b> 3 🪵 + 3 🧱 + 3 ⛏️ ore — upgrade your village (ends turn)</li>
+  </ul>
+
+  <h2>✨ Summoning Costs</h2>
+  <ul>
+   <li><b>⚔️ Warrior:</b> 1 ⛏️ ore — camp: only with 0 Warriors · village: up to 2 · fortress: up to 3</li>
+   <li><b>🐎 Knight / 🛡️ Guard / 🏹 Archer:</b> 2 ⛏️ ore each — village: 0 of that class · fortress: up to 2</li>
+   <li><b>✨ Paladin / 🪨 Catapult / 🗡️ Swordsman:</b> 3 ⛏️ ore each — fortress only, 0 of that class</li>
+  </ul>
+  <p>The building must be unoccupied; summoned units can't move until your next turn.</p>
+
+  <h2>⬆️ Unit Upgrade Costs</h2>
+  <ul>
+   <li><b>⚔️ Warrior →</b> 🐎 Knight / 🏹 Archer / 🛡️ Guard — 2 ⛏️ ore</li>
+   <li><b>🐎 Knight →</b> ✨ Paladin — 3 ⛏️ ore</li>
+   <li><b>🏹 Archer →</b> 🪨 Catapult — 3 ⛏️ ore</li>
+   <li><b>🛡️ Guard →</b> 🗡️ Swordsman — 3 ⛏️ ore</li>
+  </ul>
+  <p>Class limits match fortress summoning limits (2 for Knight/Guard/Archer lines, 1 for the advanced classes). HP carries over up to the new maximum; the unit can't act again this turn.</p>
+
+  <h2>🛠️ Crafting</h2>
+  <ul>
+   <li><b>🪓 Axe:</b> 4 🪵 wood — gather 1 wood per turn instead of 1 wood every 2 turns</li>
+   <li><b>⛏️ Pickaxe:</b> 4 🪵 wood — enter mountains and mine ore (1 ore every 2 turns)</li>
+   <li><b>⚒️ Reinforced Axe:</b> requires an axe; 2 🪵 wood + 3 ⛏️ ore — gather 2 wood per turn</li>
+   <li><b>⚒️ Reinforced Pickaxe:</b> requires a pickaxe; 2 🪵 wood + 3 ⛏️ ore — gather 1 ore per turn</li>
+  </ul>
+  <p>Max one of each tool per player. Reinforcing a tool costs 2 wood + 3 ore and ends your turn.</p>
+
+  <button id="statsClose">Close</button>
+ </div>
+</div>
+
+<div id="onlineGameNotice" class="panel" hidden></div>
+<div id="boardWrap">
+<button id="sound" title="Sound On" aria-label="Toggle sound" aria-pressed="true">🔊</button><button id="unitUpgradeIcon" title="Upgrade selected unit" aria-label="Upgrade selected unit" style="display:none;position:absolute;z-index:12;width:34px;height:34px;padding:0;border-radius:50%;background:#334b60;border:1px solid #d6b86d;box-shadow:0 2px 10px #000b;font-size:16px;align-items:center;justify-content:center">⬆️</button><div id="unitUpgradePopup" class="panel" style="display:none;position:absolute;z-index:13;min-width:175px;padding:10px;text-align:center;box-shadow:0 6px 18px #000b;border-color:#d6b86d"><div style="font-size:13px;margin-bottom:7px;font-weight:bold">Upgrade Unit</div><select id="classChoice" aria-label="Choose warrior upgrade" style="width:100%;background:#2a3e54;color:white;border:1px solid #718196;border-radius:7px;padding:7px;margin-bottom:7px"><option value="knight">🐎 Knight</option><option value="archer">🏹 Archer</option><option value="guard">🛡️ Guard</option><option value="paladin">✨ Paladin</option><option value="catapult">🪨 Catapult</option><option value="swordsman">🗡️ Swordsman</option></select><button id="upgradeWarrior" style="padding:7px 12px">Upgrade Unit</button><button id="upgradeCancel" style="padding:7px 10px;margin-left:4px">Cancel</button><div id="upgradeInfo" style="font-size:12px;margin-top:6px"></div></div><div id="recruitPopup" class="panel" style="display:none;position:absolute;z-index:10;min-width:172px;max-width:220px;padding:9px;text-align:center;border-color:#9db4a1;box-shadow:0 6px 18px #000a"><select id="recruitClass" aria-label="Unit to summon" style="width:100%;background:#2a3e54;color:white;border:1px solid #718196;border-radius:7px;padding:7px;margin-bottom:7px"><option value="warrior">⚔️ Warrior · 1 Ore</option><option value="knight">🐎 Knight · 2 Ore</option><option value="guard">🛡️ Guard · 2 Ore</option><option value="archer">🏹 Archer · 2 Ore</option><option value="paladin">✨ Paladin · 3 Ore</option><option value="catapult">🪨 Catapult · 3 Ore</option><option value="swordsman">🗡️ Swordsman · 3 Ore</option></select><button id="recruitConfirm">Summon Unit</button><div id="recruitInfo" style="font-size:12px;margin-top:5px"></div><button id="recruitCancel" style="margin-top:6px;padding:4px 10px;font-size:12px">Cancel</button></div><div id="rotateBtns" style="position:absolute;right:12px;top:66px;z-index:11;display:flex;flex-direction:column;gap:8px;align-items:center"><button id="rotR" title="Flip board (E)" aria-label="Flip board" style="width:46px;height:46px;padding:0;font-size:22px;border-radius:50%;background:#334b60;border-color:#9fb4c6;box-shadow:0 2px 10px #000b">↻</button><button id="menuBtn" title="Main Menu" aria-label="Return to main menu" style="width:46px;height:46px;padding:0;font-size:22px;border-radius:50%;background:#334b60;border-color:#9fb4c6;box-shadow:0 2px 10px #000b">🏠</button><button id="onlineSaveInGame" title="Save online match" aria-label="Save online match" hidden style="width:46px;height:46px;padding:0;font-size:21px;border-radius:50%;background:#334b60;border-color:#79a9bd;box-shadow:0 2px 10px #000b">💾</button><button id="quickEnd" title="End Turn (Enter)" aria-label="End turn" style="width:46px;height:46px;padding:0;font-size:22px;border-radius:14px;background:#3c7a52;border-color:#7fcf98;box-shadow:0 2px 10px #000b">⏩</button><button id="resignBtn" title="Resign (forfeit)" aria-label="Resign" style="width:46px;height:46px;padding:0;font-size:22px;border-radius:50%;background:#7b3a37;border-color:#c5756c;box-shadow:0 2px 10px #000b">🏳️</button><button id="statsBtn" title="Stats & costs" aria-label="Stats and costs" style="width:46px;height:46px;padding:0;font-size:22px;border-radius:50%;background:#334b60;border-color:#9fb4c6;box-shadow:0 2px 10px #000b">📊</button><button id="craftMenuBtn" title="Crafting" aria-label="Open crafting menu" style="width:46px;height:46px;padding:0;font-size:22px;line-height:1;border-radius:50%;background:#405b70;border-color:#d6b86d;box-shadow:0 2px 10px #000b">⚒️</button></div><div id="craftMenu" class="panel" role="dialog" aria-label="Crafting tools" style="display:none;position:absolute;z-index:20;right:66px;top:336px;width:246px;max-width:calc(100% - 86px);padding:12px;text-align:left;box-shadow:0 8px 24px #000c;border:1px solid #d6b86d"><div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><strong style="font-size:15px">⚒️ Tool Crafting</strong><button id="craftMenuClose" aria-label="Close crafting menu" style="padding:3px 8px;font-size:13px">✕</button></div><p style="font-size:12px;color:#b9c8d4;margin:6px 0 8px">Craft tools or reinforce tools you already own. Each action ends your turn.</p><button id="craftAxe" class="craftAction">🪓 Craft Axe · 4 Wood</button><button id="craftPickaxe" class="craftAction">⛏️ Craft Pickaxe · 4 Wood</button><button id="reinforceAxe" class="craftAction" title="Requires an axe">🪓 Reinforce Axe · 2 Wood + 3 Ore</button><button id="reinforcePickaxe" class="craftAction" title="Requires a pickaxe">⛏️ Reinforce Pickaxe · 2 Wood + 3 Ore</button><div style="font-size:11px;color:#9fb2c1;margin-top:8px">Reinforced axe: 2 wood/turn · Reinforced pickaxe: 1 ore/turn</div></div><canvas id="game" width="1930" height="1240" aria-label="20 by 20 tactical battlefield" role="img"></canvas></div></main><script src="/socket.io/socket.io.js"></script><script>
+(()=>{'use strict';const UNIT_STATS={
+ warrior:{health:10,movement:3,range:0,attack:5,counter:4},
+ knight:{health:10,movement:5,range:0,attack:6,counter:3},
+ paladin:{health:10,movement:5,range:0,attack:8,counter:5},
+ guard:{health:15,movement:3,range:0,attack:3,counter:7},
+ swordsman:{health:15,movement:2,range:0,attack:9,counter:4},
+ archer:{health:10,movement:3,range:2,attack:7,counter:2},
+ catapult:{health:10,movement:1,range:4,attack:9,counter:0}
+};
+function unitStats(unitOrClass){const cls=typeof unitOrClass==='string'?unitOrClass:(unitOrClass&&unitOrClass.warriorClass)||'warrior';return UNIT_STATS[cls]||UNIT_STATS.warrior}
+function attackDistance(unit){const r=unitStats(unit).range;return r===0?1:r}
+function canCounter(defender,attacker){const d=Math.max(Math.abs(defender.x-attacker.x),Math.abs(defender.y-attacker.y));return unitStats(defender).counter>0&&d<=attackDistance(defender)}
+const N=20,canvas=document.getElementById('game'),W=canvas.width,H=canvas.height;let ctx=canvas.getContext('2d');const outlineCanvas=document.createElement('canvas');outlineCanvas.width=W;outlineCanvas.height=H;const outlineCtx=outlineCanvas.getContext('2d');let recruitVillage=null,unitSelected=true,upgradeIconReady=false;const P=document.getElementById('players'),status=document.getElementById('status'),log=document.getElementById('log');const TW=66,TH=38,S=1.4,BS=1.2,CY=(S-1)*TH/2,OX=W/2,OY=120;let map,units,camps,turn,steps,finished,hover=null,round=1,animation=null,busy=false,acted=false,gatherFX=null,gatherToken=0,selectedUnit=0;
+// All sound effects are synthesized locally with Web Audio: no downloads or external files.
+let audioCtx=null,soundEnabled=true;
+const soundButton=document.getElementById('sound');
+soundButton.onclick=()=>{soundEnabled=!soundEnabled;soundButton.textContent=soundEnabled?'🔊':'🔇';soundButton.title=soundEnabled?'Sound On':'Sound Off';soundButton.setAttribute('aria-pressed',String(soundEnabled));if(soundEnabled)soundFX('toggle')};
+function soundFX(kind){
+ if(!soundEnabled)return;
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+  if(!audioCtx)audioCtx=new AC();
+  if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});
+  const now=audioCtx.currentTime;
+  // Gentle master limiter keeps the louder effects clear rather than distorted.
+  if(!audioCtx._battleMaster){
+   const master=audioCtx.createDynamicsCompressor();master.threshold.value=-13;master.knee.value=9;
+   master.ratio.value=3;master.attack.value=.002;master.release.value=.16;
+   master.connect(audioCtx.destination);audioCtx._battleMaster=master;
+  }
+  const output=audioCtx._battleMaster;
+  function tone(freq,dur,type='sine',vol=.12,delay=0,endFreq=freq){
+   const t=now+delay,o=audioCtx.createOscillator(),g=audioCtx.createGain();
+   o.type=type;o.frequency.setValueAtTime(Math.max(25,freq),t);
+   o.frequency.exponentialRampToValueAtTime(Math.max(25,endFreq),t+dur);
+   g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.007);
+   g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+   o.connect(g);g.connect(output);o.start(t);o.stop(t+dur+.02);
+  }
+  function noise(dur,vol=.12,delay=0,filterFreq=1700,filterType='bandpass',q=.8){
+   const t=now+delay,len=Math.max(1,Math.ceil(audioCtx.sampleRate*dur));
+   const buf=audioCtx.createBuffer(1,len,audioCtx.sampleRate),d=buf.getChannelData(0);
+   for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*(1-i/len);
+   const src=audioCtx.createBufferSource(),f=audioCtx.createBiquadFilter(),g=audioCtx.createGain();
+   src.buffer=buf;f.type=filterType;f.frequency.value=filterFreq;f.Q.value=q;
+   g.gain.setValueAtTime(Math.max(.0001,vol),t);
+   g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+   src.connect(f);f.connect(g);g.connect(output);src.start(t);src.stop(t+dur+.01);
+  }
+  // Distinct, restrained Foley-style sounds. Keep the existing turn and victory cues.
+  switch(kind){
+   case 'move': // A soft sideways shuffle: continuous cloth/leather scuff, not a stomp.
+    noise(.14,.13,0,850,'bandpass',.42);
+    noise(.11,.075,.045,460,'lowpass',.55);
+    break;
+   case 'attack': // Former counter sound: deflecting steel: thinner, higher-pitched scrape and brief guarded clang.
+    noise(.065,.10,0,2200,'bandpass',.55);
+    noise(.019,.29,.045,4900,'highpass',.8);
+    noise(.085,.15,.058,2600,'bandpass',2.2);
+    noise(.055,.09,.085,1300,'bandpass',1.4);
+    tone(1430,.105,'triangle',.028,.054,1260);
+    tone(1980,.07,'sine',.012,.066,1780);
+    break;
+   case 'capture': // Finishing blow replaces the attack: dense impact, armor rattle, short weighty tail.
+    noise(.11,.15,0,1600,'bandpass',.65);
+    noise(.028,.38,.087,3800,'highpass',.85);
+    noise(.09,.29,.105,740,'bandpass',.9);
+    noise(.16,.12,.135,2100,'bandpass',1.6);
+    noise(.10,.11,.165,360,'lowpass',.6);
+    tone(235,.14,'triangle',.058,.108,155);
+    tone(970,.095,'sine',.023,.12,830);
+    break;
+   case 'counter': // Former attack sound: modern close-range steel hit: fast air displacement, gritty contact, damped blade resonance.
+    noise(.085,.105,0,1450,'bandpass',.5);
+    noise(.024,.32,.065,3200,'highpass',.8);
+    noise(.065,.19,.077,1050,'bandpass',1.15);
+    noise(.10,.085,.095,4800,'bandpass',2.0);
+    tone(680,.085,'triangle',.035,.074,530);
+    tone(1210,.13,'sine',.018,.083,1130);
+    break;
+   case 'gather': // Quiet material scraping, no completion chime.
+    noise(.13,.20,0,1050,'bandpass',.6);
+    noise(.08,.15,.12,520,'lowpass',.7);
+    break;
+   case 'gatherDone': // Soft, brief wooden confirmation tap, no bright chime.
+    noise(.052,.105,0,640,'lowpass',.65);
+    tone(275,.075,'sine',.035,0,205);
+    break;
+   case 'camp': // Tent placement: canvas unfurls, pegs settle, final soft wooden thud.
+    noise(.28,.12,0,1100,'bandpass',.42);
+    noise(.12,.14,.13,540,'lowpass',.65);
+    noise(.04,.20,.32,800,'bandpass',.95);
+    noise(.085,.19,.41,320,'lowpass',.7);
+    tone(175,.13,'sine',.048,.41,115);
+    break;
+   case 'turn': // One gentle, short bell tone instead of the old insistent two-note ping.
+    tone(590,.18,'sine',.065,0,590);
+    break;
+   case 'win':for(let i=0;i<5;i++)tone([330,415,495,660,880][i],.36,'triangle',.14,i*.14);break;
+   case 'restart': // Map unfurl: a soft low thump and airy sweep.
+    noise(.14,.21,0,410,'lowpass',.65);
+    noise(.24,.12,.075,1100,'bandpass',.55);
+    break;
+   case 'toggle':tone(740,.12,'sine',.11);break;
+  }
+ }catch(e){/* Audio unavailable: gameplay continues normally. */}
+}
+let colors=[['#368cfa','#a8d7ff'],['#e34d53','#ffc2ac'],['#e0aa37','#fff0a0'],['#36a75c','#b8f5c9']];const rand=(x,y,k=0)=>{let v=Math.sin(x*127.1+y*311.7+k*74.7)*43758.5453;return v-Math.floor(v)};
+function createMap(){map=Array.from({length:N},(_,y)=>Array.from({length:N},(_,x)=>{let r=rand(x,y,Math.random()*1000);return r<.125?'mountain':r<.36?'forest':r<.56?'brick':'field'}));const edge=N-1,mid=Math.floor(N/2),starts=[[0,0],[edge,edge],[edge,0],[0,edge]];for(const [sx,sy] of starts){for(let y=Math.max(0,sy-1);y<=Math.min(edge,sy+1);y++)for(let x=Math.max(0,sx-1);x<=Math.min(edge,sx+1);x++)if(map[y][x]==='mountain')map[y][x]='field'}; // guarantee a navigable connected map by carving a central cross
+for(let i=0;i<N;i++){map[mid][i]=map[mid][i]==='mountain'?'field':map[mid][i];map[i][mid]=map[i][mid]==='mountain'?'field':map[i][mid]}
+// All four warrior starting corners must always be open field tiles.
+for(const [sx,sy] of starts) map[sy][sx]='field';
+}
+function start(){document.getElementById("craftMenu").style.display="none";upgradeIconReady=false;recruitVillage=null;if(typeof turnSoundToken!=='undefined')turnSoundToken++;soundFX("restart");gatherToken++;gatherFX=null;animation=null;busy=false;createMap();camps=[];units=[[0,0],[N-1,N-1],[N-1,0],[0,N-1]].map(([x,y],i)=>({x,y,hp:10,id:i,wood:20,brick:20,ore:20,axe:0,pickaxe:0,reinforcedAxe:0,reinforcedPickaxe:0,woodHarvest:0,oreHarvest:0,warriorClass:"warrior",stepsLeft:3,collected:false,attacked:false,movedThisTurn:false}));turn=0;selectedUnit=0;unitSelected=true;steps=3;acted=false;finished=false;round=1;log.textContent='Blue begins in the upper-left corner.';draw()}
+let viewRot=0;const rotXY=(x,y)=>viewRot===0?[x,y]:viewRot===1?[N-1-y,x]:viewRot===2?[N-1-x,N-1-y]:[y,N-1-x];const unrotXY=(a,b)=>viewRot===0?[a,b]:viewRot===1?[b,N-1-a]:viewRot===2?[N-1-a,N-1-b]:[N-1-b,a];const tilePoint=(x,y)=>{const [a,b]=rotXY(x,y);return {x:OX+(a-b)*TW*S/2,y:OY+(a+b)*TH*S/2}};const point=(x,y)=>{const q=tilePoint(x,y);return {x:q.x,y:q.y+CY}};function polygon(pts,fill,stroke='#0000',line=1){ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(...pts[i]);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke!=='#0000'){ctx.lineWidth=line;ctx.strokeStyle=stroke;ctx.stroke()}}
+function ellipse(x,y,rx,ry,fill){ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill()}
+function line(x1,y1,x2,y2,c,w=2){ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.strokeStyle=c;ctx.lineWidth=w;ctx.lineCap='round';ctx.stroke()}
+function shade(c,a){ctx.fillStyle=c;ctx.globalAlpha=a;ctx.fillRect(0,0,0,0);ctx.globalAlpha=1}
+function tile(x,y){const p=point(x,y),cx=p.x,cy=p.y+TH/2;ctx.save();ctx.translate(cx,cy);ctx.scale(S,S);ctx.translate(-cx,-cy);tileBase(x,y);ctx.restore()}
+function tileBase(x,y){
+const p=point(x,y),t=map[y][x],top=[[p.x,p.y],[p.x+TW/2,p.y+TH/2],[p.x,p.y+TH],[p.x-TW/2,p.y+TH/2]];
+const base={field:'#5c995a',forest:'#477e59',brick:'#a87559',mountain:'#758391'}[t];
+polygon([[p.x-TW/2,p.y+TH/2],[p.x,p.y+TH],[p.x,p.y+TH+7],[p.x-TW/2,p.y+TH/2+7]],'#253d38');polygon([[p.x,p.y+TH],[p.x+TW/2,p.y+TH/2],[p.x+TW/2,p.y+TH/2+7],[p.x,p.y+TH+7]],'#1a3033');polygon(top,base,'#182e34',.85);
+const r=rand(x,y),rr=(k)=>rand(x,y,k);
+if(t==='field'){
+  // Low, natural grassland: soft faceted ground cover, no tall grass or flowers.
+  polygon([[p.x-23,p.y+TH/2-1],[p.x-8,p.y+8],[p.x+3,p.y+17],[p.x-9,p.y+TH-5]],'#67a968');
+  polygon([[p.x+3,p.y+17],[p.x+21,p.y+TH/2-2],[p.x+9,p.y+TH-6],[p.x-9,p.y+TH-5]],'#508d55');
+  polygon([[p.x-8,p.y+8],[p.x+7,p.y+5],[p.x+21,p.y+TH/2-2],[p.x+3,p.y+17]],'#72af70');
+  // Fine short turf marks sit flush against the ground, avoiding visual clutter.
+  for(let i=0;i<4;i++){
+    const dx=(rr(i+11)-.5)*32,dy=(rr(i+21)-.5)*10;
+    const X=p.x+dx,Y=p.y+TH/2+dy;
+    ellipse(X,Y+1,3.2,1.1,i%2?'#508c51':'#79b473');
+    line(X-2,Y,X-1,Y-2,'#9bc985',.85);
+    line(X+1,Y,X+2,Y-1.5,'#3f824c',.85);
+  }
+}
+if(t==='brick'){
+  // Raised, stacked masonry with individual mortar joints and warm highlights.
+  ellipse(p.x,p.y+18,19,6,'#764b3f');
+  polygon([[p.x-17,p.y+12],[p.x-4,p.y+5],[p.x+17,p.y+12],[p.x+4,p.y+19]],'#c28a68','#754d40',.9);
+  polygon([[p.x-17,p.y+12],[p.x+4,p.y+19],[p.x+4,p.y+24],[p.x-17,p.y+17]],'#81533f');
+  polygon([[p.x+4,p.y+19],[p.x+17,p.y+12],[p.x+17,p.y+17],[p.x+4,p.y+24]],'#995f48');
+  line(p.x-6,p.y+9,p.x+14,p.y+16,'#e0ab81',1.15);
+  line(p.x-7,p.y+15,p.x-7,p.y+20,'#563b33',1.3);
+  polygon([[p.x-12,p.y+7],[p.x-2,p.y+2],[p.x+10,p.y+7],[p.x,p.y+12]],'#b97d5c','#734b3d',.8);
+  polygon([[p.x-12,p.y+7],[p.x,p.y+12],[p.x,p.y+15],[p.x-12,p.y+10]],'#86523f');
+  polygon([[p.x,p.y+12],[p.x+10,p.y+7],[p.x+10,p.y+10],[p.x,p.y+15]],'#a6684c');
+  line(p.x-1,p.y+3,p.x+7,p.y+7,'#e3aa80',1);
+}
+if(t==='forest'){
+  // Three layered evergreen trees, with shaded trunks and varied silhouettes.
+  ellipse(p.x,p.y+18,21,6,'#294b3c');
+  const tree=(dx,dy,sc,k)=>{const X=p.x+dx,Y=p.y+dy;polygon([[X-2*sc,Y+15*sc],[X+2*sc,Y+15*sc],[X+2*sc,Y+21*sc],[X-2*sc,Y+21*sc]],'#76513b');
+    for(let j=0;j<3;j++){let yy=Y+(10-j*7)*sc,w=(11-j*2)*sc;polygon([[X-w,yy+7*sc],[X,yy-10*sc],[X+w,yy+7*sc]],j===0?'#1d5846':j===1?'#287357':'#368969','#174a3e',.7);polygon([[X,yy-10*sc],[X+w,yy+7*sc],[X+2*sc,yy+7*sc]],j===0?'#174d42':'#20644d');line(X-w*.65,yy+3*sc,X-1*sc,yy-7*sc,'#64aa7a',.85)}};
+  tree(-11,5,.74,1);tree(11,4,.78,2);tree(0,-2,1.03,3);
+  ellipse(p.x-17,p.y+20,3,1.4,'#75a36b');ellipse(p.x+18,p.y+20,2,1.2,'#75a36b');
+}
+if(t==='mountain'){
+  // Tall low-poly mountain massif: projecting base, lit left slopes, dark right cliffs.
+  const X=p.x,Y=p.y;
+  ellipse(X,Y+20,23,7,'#334752');
+  // Rock pedestal makes the mountain visibly rise above the terrain tile.
+  polygon([[X-22,Y+16],[X-6,Y+10],[X+19,Y+15],[X+23,Y+21],[X+4,Y+26],[X-19,Y+23]],'#465866','#293d48',.8);
+  polygon([[X-22,Y+16],[X-6,Y+10],[X+4,Y+26],[X-19,Y+23]],'#687b85');
+  polygon([[X-6,Y+10],[X+19,Y+15],[X+23,Y+21],[X+4,Y+26]],'#354c59');
+  // Rear peak, separate planar faces.
+  polygon([[X-23,Y+16],[X-10,Y-17],[X+2,Y+12],[X-6,Y+19]],'#80949e','#344954',.9);
+  polygon([[X-10,Y-17],[X+2,Y+12],[X+8,Y+19],[X+1,Y-1]],'#3f5665');
+  polygon([[X-23,Y+16],[X-10,Y-17],[X-14,Y+1],[X-18,Y+7]],'#a1afb4');
+  polygon([[X-14,Y-7],[X-10,Y-17],[X-5,Y-5],[X-10,Y-8],[X-13,Y-3]],'#dce5e3');
+  // Main forward peak with three-dimensional ridge and deep shadow face.
+  polygon([[X-15,Y+19],[X+4,Y-28],[X+12,Y+4],[X+4,Y+24]],'#899ba4','#344955',1);
+  polygon([[X+4,Y-28],[X+23,Y+19],[X+4,Y+24],[X+12,Y+4]],'#3b5362','#263e4b',.9);
+  polygon([[X-15,Y+19],[X+4,Y-28],[X-2,Y-2],[X-7,Y+9]],'#aab8ba');
+  polygon([[X+4,Y-28],[X+12,Y+4],[X+7,Y-3],[X+5,Y-12]],'#647d8b');
+  // Angular snow cap wraps across both visible faces.
+  polygon([[X-3,Y-11],[X+4,Y-28],[X+11,Y-10],[X+6,Y-13],[X+2,Y-9],[X-1,Y-13]],'#eef1eb');
+  polygon([[X+4,Y-28],[X+11,Y-10],[X+7,Y-13],[X+5,Y-12]],'#c1d2d7');
+  // Small angular ledges add depth without cluttering neighboring tiles.
+  polygon([[X-10,Y+13],[X-4,Y+3],[X-3,Y+12],[X-7,Y+17]],'#647a86');
+  polygon([[X+11,Y+10],[X+17,Y+18],[X+8,Y+21]],'#263e4b');
+  line(X-6,Y+7,X-9,Y+14,'#c2c9c6',.85);
+}
+return p}
+
+const resources={forest:["wood","Wood","🪵"],brick:["brick","Brick","🧱"],mountain:["ore","Ore","⛏️"]};function active(){return units[selectedUnit]}
+function teamUnits(owner){return units.filter(u=>u.id===owner&&u.hp>0)}
+function warriorCount(owner){return teamUnits(owner).filter(u=>u.warriorClass==='warrior').length}
+function classCount(owner,kind){return teamUnits(owner).filter(u=>u.warriorClass===kind).length}
+function boardClassCount(kind){return classCount(turn,kind)}function upgradeClassLimit(kind){return ['knight','guard','archer'].includes(kind)?2:1}
+function canRecruit(c,kind=document.getElementById('recruitClass').value){
+ if(finished||busy||animation||gatherFX||!c||c.owner!==turn||occupant(c.x,c.y))return false;
+ if(kind==='warrior')return warriorCount(turn)<(c.fortress?3:2)&&(c.village||warriorCount(turn)===0)&&units[turn].ore>=1;
+ if(['knight','guard','archer'].includes(kind))return c.village&&(c.fortress?classCount(turn,kind)<2:classCount(turn,kind)===0)&&units[turn].ore>=2;
+ if(['paladin','catapult','swordsman'].includes(kind))return !!c.fortress&&classCount(turn,kind)===0&&units[turn].ore>=3;
+ return false;
+}
+function recruit(c){
+ const kind=document.getElementById('recruitClass').value;
+ if(!canRecruit(c,kind))return;
+ const home=units[turn],cost=kind==='warrior'?1:['knight','guard','archer'].includes(kind)?2:3;home.ore-=cost;
+ const recruit={x:c.x,y:c.y,hp:unitStats(kind).health,id:turn,woodHarvest:0,oreHarvest:0,warriorClass:kind,stepsLeft:0,collected:false,attacked:false,movedThisTurn:false};
+ for(const k of ['wood','brick','ore','axe','pickaxe','reinforcedAxe','reinforcedPickaxe'])Object.defineProperty(recruit,k,{get(){return home[k]},set(v){home[k]=v},enumerable:true});
+ units.push(recruit);selectedUnit=units.length-1;unitSelected=true;
+ recruitVillage=null;soundFX('camp');log.textContent=`${['Blue','Red','Gold','Green'][turn]} summoned a ${kind[0].toUpperCase()+kind.slice(1)} for ${cost} ore! This unit cannot move this turn.`;
+ draw();
+}function collectable(u=active()){if(finished||busy||animation||gatherFX)return null;if(u.hp<=0||u.id!==turn||u.collected||u.movedThisTurn||u.attacked)return null;const r=resources[map[u.y][u.x]]||null;if(r&&r[0]==='ore'&&u.pickaxe<1)return null;return r}function canCraft(kind){return !finished&&!busy&&!animation&&!gatherFX&&active().hp>0&&!active().attacked&&active().wood>=4&&(!kind||active()[kind]<1)}function craftTool(kind){if(!canCraft(kind))return;upgradeIconReady=false;const u=active();u.wood-=4;u[kind]++;soundFX("camp");log.textContent=`${["Blue","Red","Gold","Green"][turn]} crafted a ${kind==="axe"?"wooden axe":"wooden pickaxe"} and stored it in their inventory!`;next(450)}function canReinforceTool(kind){const u=active(),flag=kind==='axe'?'reinforcedAxe':'reinforcedPickaxe';return !finished&&!busy&&!animation&&!gatherFX&&u.hp>0&&!u.attacked&&u[kind]>0&&u[flag]<1&&u.wood>=2&&u.ore>=3}function reinforceTool(kind){if(!canReinforceTool(kind))return;upgradeIconReady=false;const u=active(),flag=kind==='axe'?'reinforcedAxe':'reinforcedPickaxe';u.wood-=2;u.ore-=3;u[flag]=1;soundFX('camp');log.textContent=`${['Blue','Red','Gold','Green'][turn]} reinforced their ${kind}! ${kind==='axe'?'It now gathers 2 wood per turn.':'It now gathers 1 ore per turn.'}`;next(450)}const upgradePaths={warrior:['knight','archer','guard'],knight:['paladin'],archer:['catapult'],guard:['swordsman']};
+function upgradeCost(u=active()){return u.warriorClass==='warrior'?2:3}
+function canSelectUpgradeTarget(){const u=active(),paths=upgradePaths[u.warriorClass]||[];return !finished&&!busy&&!animation&&!gatherFX&&unitSelected&&u.id===turn&&u.hp>0&&!u.attacked&&u.ore>=upgradeCost(u)&&paths.some(kind=>boardClassCount(kind)<upgradeClassLimit(kind))}function canUpgradeWarrior(){const u=active(),choice=document.getElementById('classChoice').value;return !finished&&!busy&&!animation&&!gatherFX&&unitSelected&&u.id===turn&&u.hp>0&&!u.attacked&&u.ore>=upgradeCost(u)&&(upgradePaths[u.warriorClass]||[]).includes(choice)&&boardClassCount(choice)<upgradeClassLimit(choice)}
+function upgradeWarrior(){if(!canUpgradeWarrior())return;upgradeIconReady=false;const u=active(),choice=document.getElementById('classChoice').value,cost=upgradeCost(u);u.ore-=cost;u.warriorClass=choice;u.hp=Math.min(u.hp,unitStats(choice).health);u.stepsLeft=0;u.attacked=true;document.getElementById('unitUpgradePopup').style.display='none';soundFX('camp');log.textContent=`${['Blue','Red','Gold','Green'][turn]} upgraded their unit into a ${choice[0].toUpperCase()+choice.slice(1)} for ${cost} ore! This unit cannot act again this turn.`;draw()}
+function canVillage(){let u=active(),c=camps.find(c=>c.x===u.x&&c.y===u.y&&c.owner===u.id);return !finished&&!busy&&!animation&&!acted&&!u.attacked&&!!c&&!c.village&&u.wood>=2&&u.brick>=2&&u.ore>=1}function canFortress(){let u=active(),c=camps.find(c=>c.x===u.x&&c.y===u.y&&c.owner===u.id);return !finished&&!busy&&!animation&&!acted&&!u.attacked&&!!c&&c.village&&!c.fortress&&u.wood>=3&&u.brick>=3&&u.ore>=3}function canCamp(){let u=active();return !finished&&!busy&&!animation&&!u.attacked&&map[u.y][u.x]==='field'&&u.wood>=1&&u.brick>=1&&!camps.some(c=>c.x===u.x&&c.y===u.y)}function inside(x,y){return x>=0&&y>=0&&x<N&&y<N}function occupant(x,y){return units.find(u=>u.hp>0&&u.x===x&&u.y===y)}
+function clearStructureClaim(c){if(!c)return;delete c.claimCandidateOwner;delete c.claimUnit;delete c.claimReadyFor}
+function clearStructureClaimForUnit(u){for(const c of camps)if(c.claimUnit===u)clearStructureClaim(c)}
+function structureLabel(c){return c.fortress?'fortress':c.village?'town':'camp'}
+function beginStructureOccupation(u,announce=true){
+ const c=camps.find(v=>v.x===u.x&&v.y===u.y);
+ if(!c||c.owner===u.id)return null;
+ clearStructureClaimForUnit(u);c.claimCandidateOwner=u.id;c.claimUnit=u;c.claimReadyFor=null;
+ if(announce)log.textContent=`${['Blue','Red','Gold','Green'][u.id]} is occupying the enemy ${structureLabel(c)}. Keep this unit here until your next turn begins to unlock the claim!`;
+ return c;
+}
+function refreshStructureClaimsForTurn(owner){
+ const newlyReady=[];
+ for(const c of camps){
+  if(!c.claimUnit)continue;
+  const holder=occupant(c.x,c.y);
+  if(!holder||holder!==c.claimUnit||holder.hp<=0||holder.id!==c.claimCandidateOwner||c.owner===holder.id){clearStructureClaim(c);continue}
+  if(holder.id===owner&&c.claimReadyFor!==owner){c.claimReadyFor=owner;newlyReady.push(c)}
+ }
+ if(newlyReady.length){const c=newlyReady[0],u=c.claimUnit;log.textContent=`${['Blue','Red','Gold','Green'][u.id]} held the enemy ${structureLabel(c)} for a full turn. Select the occupying unit and click the 🚩 flag to claim it!`}
+}
+function canClaimStructure(u=active()){
+ if(finished||busy||animation||gatherFX||!unitSelected||!u||u.hp<=0||u.id!==turn||u.attacked)return false;
+ const c=camps.find(v=>v.x===u.x&&v.y===u.y&&v.owner!==u.id);
+ return !!c&&c.claimUnit===u&&c.claimCandidateOwner===u.id&&c.claimReadyFor===u.id;
+}
+function claimStructure(c,u=active()){
+ if(!c||!canClaimStructure(u)||c!==camps.find(v=>v.x===u.x&&v.y===u.y&&v.owner!==u.id))return false;
+ const oldOwner=c.owner,label=structureLabel(c);
+ c.owner=u.id;clearStructureClaim(c);u.attacked=true;u.stepsLeft=0;u.collected=true;
+ soundFX('camp');log.textContent=`${['Blue','Red','Gold','Green'][u.id]} claimed the ${label} from ${['Blue','Red','Gold','Green'][oldOwner]}! It now belongs to your team.`;
+ draw();return true;
+}
+function validMove(x,y){if(!unitSelected)return false;let u=active(),dx=x-u.x,dy=y-u.y;if(!inside(x,y)||u.stepsLeft===0||u.collected||u.attacked||Math.max(Math.abs(dx),Math.abs(dy))!==1||occupant(x,y)||(map[y][x]==='mountain'&&u.pickaxe<1))return false;if(dx&&dy&&u.pickaxe<1&&map[u.y][x]==='mountain'&&map[y][u.x]==='mountain')return false;return true}function validAttack(x,y){if(!unitSelected)return false;let u=active(),v=occupant(x,y);return !u.attacked&&v&&v.id!==u.id&&Math.max(Math.abs(x-u.x),Math.abs(y-u.y))<=attackDistance(u)}
+// Each upgrade is a completely separate silhouette, not equipment layered over the Warrior.
+function drawClassSprite(u,base,shine){
+ const cls=u.warriorClass;
+ if(cls==='paladin'){
+  drawClassSprite({...u,warriorClass:'knight',paladinArmor:true},base,shine);
+  // Paladin keeps the mounted Knight helmet and spear, with no shield,
+  // glowing oval fitting, or floating crest.
+  return;
+ }
+ if(cls==='swordsman'){
+  // Same armor and shield design as Guard, with a mid-sized shield;
+  // no spear, swords, or floating helmet crest.
+  drawClassSprite({...u,warriorClass:'guard',swordsmanShield:true},base,shine);
+  // Heavy swordsman armor: a distinct broad-shouldered silhouette, layered
+  // chest cuirass and enclosed visor. Keep the shield and sword untouched.
+  ctx.save();
+  // Reinforced right pauldron (shield-side plating stays behind the shield).
+  let plate=ctx.createLinearGradient(10,-46,31,-21);
+  plate.addColorStop(0,'#f5f8f6');plate.addColorStop(.4,'#a9bdca');plate.addColorStop(1,'#3b5366');
+  polygon([[10,-41],[21,-46],[30,-39],[29,-27],[21,-24],[13,-29]],plate,'#253c4e',2);
+  polygon([[15,-40],[22,-43],[27,-38],[25,-34],[17,-35]],'#edf5f5','#718797',.8);
+  line(16,-28,28,-28,'#d4b66f',2.3);
+  // Articulated waist and overlapping steel skirt plates.
+  polygon([[-11,-18],[12,-18],[17,-9],[10,-3],[-10,-3],[-15,-9]],'#455b6e','#1a2e40',1.8);
+  for(const x of [-9,0,9])polygon([[x-5,-12],[x+5,-12],[x+6,-1],[x,-4],[x-6,-1]],'#a6b8c5','#304a5c',1);
+  // Central breastplate is heavier than the Guard's, with a bright ridge.
+  polygon([[-11,-39],[0,-43],[12,-39],[11,-22],[0,-16],[-11,-22]],'#718b9c','#243a4c',2);
+  polygon([[-8,-37],[0,-40],[0,-20],[-8,-25]],'#cddbe0');
+  polygon([[0,-40],[9,-37],[8,-25],[0,-20]],'#526d81');
+  line(-10,-22,10,-22,'#d8b96d',2.5);
+  ellipse(0,-30,3.3,3.3,'#f1d38a');
+  // Full-face great helm: squared crown, narrow visor and steel chin guard.
+  let helmet=ctx.createLinearGradient(-14,-66,15,-40);
+  helmet.addColorStop(0,'#f8fcfb');helmet.addColorStop(.38,'#b7c7d0');helmet.addColorStop(1,'#3e596d');
+  polygon([[-12,-61],[-8,-67],[8,-67],[13,-61],[13,-43],[8,-39],[-8,-39],[-13,-43]],helmet,'#273e50',2);
+  polygon([[-10.5,-55],[10.5,-55],[9.5,-48],[-9.5,-48]],'#263c4e','#a9bbc6',1);
+  line(-6,-52,6,-52,'#0c202f',2.5);
+  polygon([[-5,-47],[5,-47],[4,-40],[-4,-40]],'#8198a7','#354d5d',1);
+  line(0,-47,0,-40,'#e2edf0',1.5);
+  // Short gold-edged brow band differentiates the helmet at board scale.
+  line(-10,-59,10,-59,'#d5b66b',2.2);
+  ctx.restore();
+  // Repaint the original shield after the heavy armor so it stays in front.
+  ctx.save();ctx.translate(4,0);ctx.translate(-23,-18);ctx.scale(.65,.65);ctx.translate(23,18);
+  // Enlarged curved tower shield covers almost all of the guard's front.
+  // Smooth outline, beveled steel edge and subtle shaded metal instead of faceted geometry.
+  const shield=ctx.createLinearGradient(-46,-54,-2,10);shield.addColorStop(0,'#edf4f1');shield.addColorStop(.19,'#aebfca');shield.addColorStop(.55,base);shield.addColorStop(.83,'#415e71');shield.addColorStop(1,'#1d3241');
+  ctx.beginPath();ctx.moveTo(-46,-54);ctx.quadraticCurveTo(-23,-63,0,-54);ctx.lineTo(0,2);ctx.quadraticCurveTo(-6,16,-23,25);ctx.quadraticCurveTo(-41,17,-46,2);ctx.closePath();ctx.fillStyle='#243747';ctx.fill();ctx.strokeStyle='#d8e5e8';ctx.lineWidth=3.2;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-41,-49);ctx.quadraticCurveTo(-23,-56,-5,-49);ctx.lineTo(-5,0);ctx.quadraticCurveTo(-10,12,-23,19);ctx.quadraticCurveTo(-36,11,-41,0);ctx.closePath();ctx.fillStyle=shield;ctx.fill();ctx.strokeStyle='#354d5d';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-36,-45);ctx.quadraticCurveTo(-32,-47,-28,-48);ctx.lineTo(-28,9);ctx.quadraticCurveTo(-33,5,-36,-3);ctx.closePath();ctx.fillStyle='#ffffff2b';ctx.fill();
+  line(-23,-45,-23,15,'#e4d6a6',4);line(-37,-18,-9,-18,'#e4d6a6',4);ellipse(-23,-18,6,6,'#dfbb71');ellipse(-23,-18,2,2,'#fff0bc');
+  for(const [xx,yy] of [[-39,-46],[-8,-46],[-39,-1],[-8,-1]])ellipse(xx,yy,1.8,1.8,'#e8e9e2');
+  ctx.restore();
+  // Knight-style one-handed sword in the free (right) hand.
+  // Shift its hilt down to the Swordsman's arm height, preserving the
+  // Knight's tapered steel blade, crossguard, and gilded pommel design.
+  ctx.save();ctx.translate(5,39);
+  ctx.translate(21,-62);ctx.scale(.84,.84);ctx.translate(-21,62);ctx.translate(-5,0);
+  line(17,-54,23,-68,'#48372c',5);
+  line(17,-54,23,-68,'#b38a59',2);
+  ellipse(16,-53,3.5,3.5,'#d5b976');
+  line(14,-70,31,-64,'#3a4652',4.8);
+  line(14,-70,31,-64,'#d7c6a0',2.5);
+  // Slightly thicker blade with a brighter polished-steel reflection.
+  polygon([[21,-67],[28,-65],[44,-103],[40,-113],[35,-102]],'#c8d5dd','#526c7e',1.3);
+  polygon([[22,-67],[26,-66],[40,-109],[37,-102]],'#f0f7f7');
+  ctx.save();ctx.shadowColor='#e8faff';ctx.shadowBlur=3;
+  line(25,-71,40,-107,'#ffffff',1.65);
+  line(28,-74,40,-102,'#e3f7ff',.85);
+  ctx.restore();
+  ctx.restore();
+  return;
+ }
+ if(cls==='catapult'){
+  // Side-view, A-frame trebuchet inspired by the supplied reference.
+  // Keep the compact game scale while making the frame, pivot, long arm,
+  // sling rope and shallow throwing bucket read as one coherent machine.
+  ctx.save();ctx.scale(.62,.62);
+  // Low wooden chassis and two small iron-rimmed wheels.
+  polygon([[-39,-7],[36,-7],[33,-14],[-36,-14]],'#79502f','#342820',2);
+  line(-35,-10,33,-10,'#c49a5e',2.4);
+  for(const xx of [-29,29]){
+   ellipse(xx,-3,8.5,8.5,'#292d31','#171a1d',1.5);
+   ellipse(xx,-3,4.2,4.2,'#aeb4b7','#4a5054',1);
+   ellipse(xx,-3,1.6,1.6,'#4b5358');
+  }
+  // Tall triangular support frame with cross-bracing.
+  line(-19,-13,5,-68,'#593a27',9);line(-19,-13,5,-68,'#a97843',5.5);
+  line(27,-13,5,-68,'#593a27',9);line(27,-13,5,-68,'#b1844d',5.5);
+  line(-10,-33,21,-33,'#67452d',5);
+  line(-12,-13,19,-48,'#76502f',4.5);
+  line(20,-13,-10,-43,'#76502f',4.5);
+  // Main throwing beam: animate a downward firing stroke when this catapult attacks.
+  let armDrop=0;
+  if(animation&&animation.attacker===units.indexOf(u)){
+   const t=animation.progress;
+   if(t>.18&&t<.62){const f=(t-.18)/.44;armDrop=1.5*Math.sin(f*Math.PI/2);}
+   else if(t>=.62){const f=Math.min(1,(t-.62)/.38);armDrop=1.5*(1-f)*.18;}
+  }
+  const armRgb=base.match(/[0-9a-f]{2}/gi).map(v=>Math.round(parseInt(v,16)*.58));
+  const armShade='#'+armRgb.map(v=>v.toString(16).padStart(2,'0')).join('');
+  ctx.save();ctx.translate(2,-43);ctx.rotate(Math.PI/4+armDrop);
+  line(-42,0,37,0,'#382b25',15);
+  line(-42,-1,37,-1,armShade,11);
+  line(-40,-3,35,-3,base,7);
+  line(-37,-5,31,-5,shine,1.8);
+  // Pivot axle and metal collars.
+  ctx.restore();
+  ellipse(2,-43,7.5,7.5,'#34383c','#171b20',1.5);
+  ellipse(2,-43,3.2,3.2,'#c2a16b','#443526',1);
+  // The throwing arm is angled a full 45 degrees; its tip terminates
+  // directly inside the bucket so the bucket is visibly mounted on the beam.
+  // Shallow open throwing bucket and cannonball sit together at that tip.
+  ctx.save();ctx.translate(2,-43);ctx.rotate(armDrop);ctx.translate(-2,43);ctx.translate(-28,-83);ctx.rotate(Math.PI/4); // bucket follows the arm through its downward firing stroke
+  // Outer wooden scoop, drawn over the beam tip to make the join clear.
+  ctx.beginPath();ctx.moveTo(-13,-4);ctx.quadraticCurveTo(-3,3,13,-2);
+  ctx.lineTo(11,5);ctx.quadraticCurveTo(0,12,-12,3);ctx.closePath();
+  ctx.fillStyle='#825936';ctx.fill();ctx.strokeStyle='#382a20';ctx.lineWidth=2;ctx.stroke();
+  // Cannonball rests at the end of the arm inside the open scoop.
+  ellipse(0,-7,6.4,6.4,'#252b32','#11171c',1.1);
+  ellipse(-2,-9,1.8,1.5,'#89939a');
+  // Near rim overlaps the lower part of the ball, keeping it seated in the bucket.
+  ctx.beginPath();ctx.moveTo(-13,-4);ctx.quadraticCurveTo(-5,2,0,1);
+  ctx.quadraticCurveTo(7,1,13,-2);ctx.lineTo(11,5);
+  ctx.quadraticCurveTo(0,12,-12,3);ctx.closePath();
+  ctx.fillStyle='#a17448';ctx.fill();ctx.strokeStyle='#382a20';ctx.lineWidth=1.6;ctx.stroke();
+  line(-10,-2,10,-1,shine,1.3);
+  ctx.restore();
+  // Removed team-colored badge and pennant; the throwing arm remains team-colored.
+  // Iron fastening plates at the feet and pivot.
+  for(const [x,y] of [[-18,-12],[25,-12]]){
+   polygon([[x-4,y-2],[x+4,y-2],[x+3,y+2],[x-3,y+2]],'#555b60','#252a2e',.8);
+  }
+  ctx.restore();return;
+ }
+ if(cls==='knight'){
+  // Mounted knight: rounded, shaded horse anatomy, four legs, mane, tack and rider.
+  const grad=(x,y,x2,y2,stops)=>{let g=ctx.createLinearGradient(x,y,x2,y2);stops.forEach(([at,c])=>g.addColorStop(at,c));return g};
+  // Paladin plate: banded, high-contrast polished steel (bright sky-reflection, dark core, bounce light).
+  const pal=!!u.paladinArmor;
+  const chrome=(x0,y0,x1,y1)=>grad(x0,y0,x1,y1,[[0,'#ffffff'],[.16,'#f0f5f8'],[.36,'#a9b9c5'],[.54,'#52667a'],[.68,'#8b9fae'],[.86,'#d6dfe5'],[1,'#617585']]);
+  const coat=grad(-35,-28,33,8,[[0,'#b28b65'],[.3,'#79553d'],[.75,'#533a30'],[1,'#30252a']]);
+  // Slightly smaller horse, independently scaled so the rider stays full-sized.
+  ctx.save();ctx.translate(0,2);ctx.scale(.90,.91);
+  // Rear legs and far hooves sit behind the body.
+  for(const xx of [-26,17]){line(xx,-11,xx+(xx<0?-5:7),11,'#513a32',8);line(xx+(xx<0?-5:7),11,xx+(xx<0?-8:10),19,'#3d3030',7);ellipse(xx+(xx<0?-8:10),20,6,3,'#20262c')}
+  // Tail grows from the upper rear of the smaller rump, then hangs naturally behind it.
+  ctx.beginPath();ctx.moveTo(-38,-29);ctx.bezierCurveTo(-47,-31,-49,-25,-50,-18);ctx.bezierCurveTo(-51,-10,-55,-6,-54,0);ctx.bezierCurveTo(-46,-5,-44,-13,-43,-20);ctx.bezierCurveTo(-42,-24,-39,-25,-36,-24);ctx.closePath();ctx.fillStyle='#30262a';ctx.fill();
+  // Rounded barrel and haunches; gradients replace faceted poly shapes.
+  ellipse(-8,-24,34,19,coat);ellipse(-29,-23,12,16,coat);
+  // Shorter, gently sloping horse neck instead of a long camel-like upright neck.
+  ctx.beginPath();ctx.moveTo(12,-29);ctx.bezierCurveTo(21,-35,26,-45,33,-52);ctx.bezierCurveTo(40,-57,46,-52,44,-43);ctx.lineTo(37,-23);ctx.bezierCurveTo(31,-14,22,-16,13,-18);ctx.closePath();ctx.fillStyle=grad(15,-50,42,-22,[[0,'#927052'],[.45,'#79553d'],[1,'#533a30']]);ctx.fill();ctx.strokeStyle='#392c2c';ctx.lineWidth=1.7;ctx.stroke();
+  // Horse's head, muzzle, ears, eye and reins.
+  ctx.beginPath();ctx.moveTo(32,-55);ctx.quadraticCurveTo(40,-64,48,-56);ctx.quadraticCurveTo(52,-52,49,-45);ctx.lineTo(54,-39);ctx.quadraticCurveTo(54,-32,44,-34);ctx.lineTo(36,-42);ctx.closePath();ctx.fillStyle=grad(34,-68,54,-34,[[0,'#aa8060'],[.6,'#71503c'],[1,'#3e3030']]);ctx.fill();ctx.stroke();
+  polygon([[35,-56],[36,-67],[43,-58]],'#6d4a3a','#332b2c',1);polygon([[44,-56],[49,-64],[50,-51]],'#7c5540','#332b2c',1);
+  ellipse(46,-47,2.4,2,'#171e24');ellipse(46.7,-47.7,.7,.7,'#f5e4ce');ellipse(50,-36,5,3,'#b39a86');
+  // Bridle and short reins restored, ending before the rider's leg; no stirrup strap.
+  line(38,-43,52,-39,'#d0ae77',1.7);ctx.beginPath();ctx.moveTo(49,-39);ctx.quadraticCurveTo(39,-33,23,-34);ctx.strokeStyle='#c6a16a';ctx.lineWidth=1.5;ctx.stroke();
+  // Near legs show knee bends and distinct horseshoes.
+  ctx.lineCap='round';line(-26,-14,-30,3,'#8e694b',10);line(-30,3,-37,18,'#6c4d3a',8);line(14,-13,23,2,'#8b6346',10);line(23,2,17,19,'#604332',8);ellipse(-37,20,7,3,'#252b30');ellipse(17,21,7,3,'#252b30');ctx.lineCap='butt';
+  // Soft coat highlights and muscular contours keep the horse in the same
+  // shaded, hand-painted style as the battlefield and the original Warrior.
+  ctx.beginPath();ctx.moveTo(-33,-31);ctx.bezierCurveTo(-22,-43,-1,-42,12,-33);ctx.strokeStyle='#d5b18a';ctx.globalAlpha=.32;ctx.lineWidth=3;ctx.stroke();ctx.globalAlpha=1;
+  // Removed the dark streak across the horse's midsection.
+  // Layered leather saddle, stirrup and team-color saddlecloth.
+  ctx.beginPath();ctx.ellipse(-6,-37,19,7,0,0,Math.PI*2);ctx.fillStyle='#342b2c';ctx.fill();
+  ctx.beginPath();ctx.moveTo(-23,-35);ctx.quadraticCurveTo(-7,-42,12,-35);ctx.lineTo(15,-16);ctx.quadraticCurveTo(-4,-12,-19,-16);ctx.closePath();ctx.fillStyle=base;ctx.fill();ctx.strokeStyle='#293746';ctx.lineWidth=1.7;ctx.stroke();
+  line(-17,-23,12,-23,shine,1.8); // Stirrup strap and hanging loop removed.
+  ctx.restore();
+  if(u.paladinArmor){
+   // Polished steel barding: overlapping lames, rivets, team hem and a heraldic boss.
+   ctx.save();ctx.translate(-4,0);
+   const seam='#34414d',edge='#27323c';
+   const flank=()=>{ctx.beginPath();ctx.moveTo(-39,-31);ctx.quadraticCurveTo(-31,-43,-13,-42);ctx.lineTo(13,-40);ctx.quadraticCurveTo(33,-37,40,-27);ctx.lineTo(38,-16);ctx.quadraticCurveTo(34,-10,29,-13);ctx.lineTo(22,-9);ctx.lineTo(15,-14);ctx.lineTo(7,-9);ctx.lineTo(0,-14);ctx.lineTo(-8,-10);ctx.lineTo(-16,-16);ctx.lineTo(-25,-13);ctx.lineTo(-34,-20);ctx.closePath()};
+   const sh=ctx.createLinearGradient(0,-43,0,-9);
+   [[0,'#eef3f6'],[.14,'#bccad4'],[.34,'#7d90a0'],[.54,'#475a6b'],[.7,'#6c8092'],[.86,'#a9b9c5'],[1,'#4f6274']].forEach(([a,c])=>sh.addColorStop(a,c));
+   flank();ctx.fillStyle=sh;ctx.fill();
+   ctx.save();flank();ctx.clip();
+   // Overlapping horizontal lames: shadow under each plate edge, dark seam, bright lip above it.
+   for(let i=0;i<4;i++){
+    const y0=-34+i*7;
+    ctx.beginPath();ctx.moveTo(-44,y0+3);ctx.quadraticCurveTo(0,y0-5,44,y0+3);ctx.lineTo(44,y0+8);ctx.quadraticCurveTo(0,y0-1,-44,y0+8);ctx.closePath();ctx.fillStyle='#17222c';ctx.globalAlpha=.26;ctx.fill();ctx.globalAlpha=1;
+    ctx.beginPath();ctx.moveTo(-44,y0+3);ctx.quadraticCurveTo(0,y0-5,44,y0+3);ctx.strokeStyle=seam;ctx.lineWidth=1.4;ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-44,y0+1.6);ctx.quadraticCurveTo(0,y0-6.4,44,y0+1.6);ctx.strokeStyle='#ffffffd0';ctx.lineWidth=1;ctx.stroke();
+    // Rivets sit on each seam.
+    for(const rx of [-30,-16,-2,12,26]){const ry=y0+3-5*(1-Math.pow((rx)/44,2))*0.75;ellipse(rx,ry+1.2,1.7,1.7,'#2b3742');ellipse(rx-.3,ry+.8,1.05,1.05,'#eaf1f5');}
+   }
+   // Contact shadow so the rider's leg and hips separate from the plate.
+   ctx.globalAlpha=.34;ctx.beginPath();ctx.ellipse(16,-27,11,17,.12,0,Math.PI*2);ctx.fillStyle='#0b151e';ctx.fill();ctx.globalAlpha=1;
+   // Soft bevel just inside the outline.
+   flank();ctx.strokeStyle='#ffffff66';ctx.lineWidth=4;ctx.stroke();
+   ctx.restore();
+   // Specular streak along the shoulder of the barrel.
+   ctx.beginPath();ctx.moveTo(-31,-38);ctx.quadraticCurveTo(0,-45,31,-37);ctx.strokeStyle='#ffffffe6';ctx.lineWidth=1.7;ctx.lineCap='round';ctx.stroke();ctx.lineCap='butt';
+   flank();ctx.strokeStyle=edge;ctx.lineWidth=1.9;ctx.stroke();
+   // Team-colored caparison hem along the scalloped lower edge.
+   const hem=[[38,-16],[34,-10],[29,-13],[22,-9],[15,-14],[7,-9],[0,-14],[-8,-10],[-16,-16],[-25,-13],[-34,-20]];
+   ctx.beginPath();ctx.moveTo(...hem[0]);for(const p of hem.slice(1))ctx.lineTo(...p);ctx.strokeStyle=base;ctx.lineWidth=2.6;ctx.lineJoin='round';ctx.stroke();
+   ctx.beginPath();ctx.moveTo(hem[0][0],hem[0][1]-1.4);for(const p of hem.slice(1))ctx.lineTo(p[0],p[1]-1.4);ctx.strokeStyle=shine;ctx.lineWidth=.9;ctx.stroke();ctx.lineJoin='miter';
+   // Heraldic boss: steel ring around a team-colored enamel center.
+   ellipse(-15,-26,7.4,7.4,'#27323c');
+   ellipse(-15,-26,6.6,6.6,grad(-21,-32,-9,-20,[[0,'#ffffff'],[.45,'#aebdc9'],[.7,'#566b7d'],[1,'#c6d2db']]));
+   ellipse(-15,-26,4.2,4.2,base,'#1d2a36',1);
+   ellipse(-16.2,-27.4,1.5,1.2,'#ffffffcc');
+   ctx.restore();
+   // Chamfron: steel head armor over the face and muzzle. Ears and eye stay clear; neck stays bare.
+   {
+    ctx.save();ctx.translate(0,2);ctx.scale(.90,.91);
+    const dk2='#26323d';
+    ctx.beginPath();ctx.moveTo(33.5,-54);ctx.quadraticCurveTo(40,-62,47.5,-56.5);ctx.quadraticCurveTo(52.5,-52,50.5,-45);ctx.lineTo(55.5,-39.5);ctx.quadraticCurveTo(56,-31.5,44,-33);ctx.lineTo(35,-41.5);ctx.closePath();
+    ctx.fillStyle=chrome(34,-62,56,-32);ctx.fill();
+    ctx.save();ctx.clip();
+    // Cheek seam, brow band and a soft bevel inside the edge.
+    ctx.beginPath();ctx.moveTo(35,-42);ctx.quadraticCurveTo(41,-44.5,46,-40.5);ctx.strokeStyle=dk2;ctx.lineWidth=1.1;ctx.stroke();
+    ctx.beginPath();ctx.moveTo(34,-53);ctx.quadraticCurveTo(41,-57.5,49,-52.5);ctx.strokeStyle=dk2;ctx.lineWidth=1.1;ctx.stroke();
+    ctx.beginPath();ctx.moveTo(34,-54.2);ctx.quadraticCurveTo(41,-58.8,49,-53.8);ctx.strokeStyle='#ffffffcc';ctx.lineWidth=.8;ctx.stroke();
+    // Muzzle plate seam with two nostril vents.
+    ctx.beginPath();ctx.moveTo(47.5,-45);ctx.quadraticCurveTo(51.5,-42,52.5,-38.5);ctx.strokeStyle=dk2;ctx.lineWidth=1.1;ctx.stroke();
+    ellipse(53,-37,.9,.7,'#16202a');ellipse(50.6,-35.8,.9,.7,'#16202a');
+    ctx.restore();
+    ctx.beginPath();ctx.moveTo(33.5,-54);ctx.quadraticCurveTo(40,-62,47.5,-56.5);ctx.quadraticCurveTo(52.5,-52,50.5,-45);ctx.lineTo(55.5,-39.5);ctx.quadraticCurveTo(56,-31.5,44,-33);ctx.lineTo(35,-41.5);ctx.closePath();
+    ctx.strokeStyle=dk2;ctx.lineWidth=1.5;ctx.lineJoin='round';ctx.stroke();ctx.lineJoin='miter';
+    // Raised center ridge running down the face to the nose.
+    ctx.beginPath();ctx.moveTo(38.5,-57);ctx.quadraticCurveTo(44,-49,54,-38.5);ctx.strokeStyle=dk2;ctx.lineWidth=2;ctx.stroke();
+    ctx.beginPath();ctx.moveTo(38,-57.6);ctx.quadraticCurveTo(43.4,-50,53,-39.5);ctx.strokeStyle='#ffffffe0';ctx.lineWidth=.9;ctx.stroke();
+    // Eye hole with a steel rim: the horse's eye still shows.
+    ctx.beginPath();ctx.ellipse(45,-47,4.3,3.5,-.35,0,Math.PI*2);ctx.fillStyle='#1b252e';ctx.fill();ctx.strokeStyle='#dfe8ee';ctx.lineWidth=1.2;ctx.stroke();
+    ellipse(45.3,-47,2.4,2,'#171e24');ellipse(46,-47.8,.7,.7,'#f5e4ce');
+    // Team-colored rosette on the forehead.
+    ellipse(40.2,-52.2,3.3,3.3,'#27323c');ellipse(40.2,-52.2,2.7,2.7,chrome(37,-55,43,-49));ellipse(40.2,-52.2,1.6,1.6,base,'#1d2a36',.6);ellipse(39.7,-52.8,.5,.5,'#ffffffcc');
+    // Edge rivets.
+    for(const [x,y] of [[36,-47],[49.5,-54],[53.5,-33.6],[45,-34.6]])ellipse(x,y,.8,.8,'#eaf1f5','#2b3742',.45);
+    ctx.restore();
+   }
+  }
+  // Paladin spear is drawn behind the rider so the breastplate, arm, and
+  // body naturally overlap the shaft instead of the spear appearing pasted on top.
+  if(u.paladinArmor){
+   ctx.save();
+   line(-39,-64,49,-64,'#302a25',5.2);
+   line(-38,-64,45,-64,'#9b7650',2.2);
+   line(-38,-64,-30,-64,'#d2b77c',3.2);
+   polygon([[45,-64],[55,-70],[68,-64],[55,-58]],'#718596','#263b4d',1.5);
+   polygon([[48,-64],[55,-68],[64,-64],[55,-60]],'#dce8ed','#526b7b',.8);
+   line(49,-64,64,-64,'#ffffff',1.1);
+   line(42,-68,42,-60,'#c6a66d',2.2);
+   polygon([[-42,-66],[-38,-64],[-42,-62]],'#b9c5ca','#435462',.8);
+   ctx.restore();
+  }
+  // Rider faces toward the horse's head (screen right), straddling the saddle.
+  // Far-side leg is tucked behind the torso and horse's front flank.
+  const steel=pal?chrome(-20,-63,23,-10):grad(-20,-63,23,-10,[[0,'#f5fbfa'],[.24,'#c4d0d9'],[.58,'#708698'],[1,'#23394b']]);
+  // Far-side (left) leg intentionally hidden; only the near riding leg is visible.
+  // Hips settle into the saddle, rather than balancing on top of it.
+  // Removed the exposed gray oval beneath the rider; waist and saddle remain.
+  // Team-colored cape behind the rider, like the Warrior's own cape.
+  ctx.beginPath();ctx.moveTo(-13,-77);ctx.quadraticCurveTo(-24,-70,-23,-52);ctx.lineTo(-28,-41);ctx.quadraticCurveTo(-15,-44,-10,-54);ctx.closePath();ctx.fillStyle=base;ctx.fill();ctx.strokeStyle='#253344';ctx.lineWidth=1.5;ctx.stroke();
+  // Slightly forward-turned waist connects the chest to the seated hips.
+  polygon([[-11,-57],[10,-57],[12,-47],[5,-40],[-8,-40],[-12,-46]],pal?chrome(-12,-57,12,-40):'#536c80','#253a4a',1.3);
+  line(-8,-52,8,-52,'#c2d0d9',1.8);
+  // Near-side leg is in front of the horse, making the straddle clearly visible.
+  line(-4,-41,13,-30,'#253c4c',12);line(-4,-41,13,-30,steel,9);
+  ellipse(13,-30,6,6,'#9cabb9');
+  line(13,-29,12,-9,'#253c4c',11);line(13,-29,12,-9,steel,8);
+  ellipse(16,-9,9,4,'#263849');line(8,-10,21,-10,'#c2d0d9',1.4);
+  if(pal){
+   const dk='#26323d';
+   // Greave: segmented shin plate with a bright front edge and cuffs.
+   line(9.5,-26,9,-11,'#ffffffd0',1.6);
+   for(const yy of [-23,-18,-13]){line(7.5,yy,16.5,yy+.6,dk,1.1);line(7.5,yy-1.1,16.5,yy-.5,'#ffffffa0',.7)}
+   // Sabaton: pointed steel toe cap with rivet.
+   polygon([[8,-12],[19,-12],[26,-9],[24,-5],[9,-5]],chrome(8,-12,25,-5),dk,1.2);
+   line(10,-10,23,-9,'#ffffffcc',1);ellipse(15,-8.5,.9,.9,dk);
+   // Knee cop: domed plate with a center ridge and specular dot.
+   ctx.beginPath();ctx.moveTo(7,-34);ctx.quadraticCurveTo(15,-38,21,-30);ctx.quadraticCurveTo(19,-23,12,-25);ctx.quadraticCurveTo(6,-28,7,-34);ctx.closePath();
+   ctx.fillStyle=chrome(7,-37,21,-23);ctx.fill();ctx.strokeStyle=dk;ctx.lineWidth=1.3;ctx.stroke();
+   line(9,-30,20,-29,dk,.9);ellipse(11.5,-33,1.7,1.1,'#ffffff');
+   // Tassets: three overlapping hip plates hanging over the thigh.
+   for(let i=2;i>=0;i--){
+    const ox=i*3.6,oy=i*2.3;
+    ctx.beginPath();ctx.moveTo(-9+ox,-48+oy);ctx.lineTo(11+ox,-47+oy);ctx.lineTo(13+ox,-42+oy);ctx.quadraticCurveTo(2+ox,-38+oy,-9+ox,-42+oy);ctx.closePath();
+    ctx.fillStyle=chrome(-9+ox,-48+oy,13+ox,-38+oy);ctx.fill();ctx.strokeStyle=dk;ctx.lineWidth=1.2;ctx.stroke();
+    line(-7+ox,-46.6+oy,9+ox,-45.6+oy,'#ffffffd0',.9);
+    ellipse(-5+ox,-44.6+oy,.9,.9,dk);ellipse(7+ox,-43.8+oy,.9,.9,dk);
+   }
+  }
+  // Keep the opposite (screen-left) shoulder; the screen-right arm is removed.
+  const ax=-5;
+  const metal=pal?chrome(ax-8,-79,ax+9,-60):grad(ax-8,-79,ax+9,-60,[[0,'#f5faf9'],[.3,'#bdcbd3'],[.7,'#60788a'],[1,'#263a4b']]);
+  ctx.beginPath();ctx.moveTo(ax-5,-75);ctx.quadraticCurveTo(ax+11,-79,ax+10,-68);
+  ctx.lineTo(ax+7,-58);ctx.quadraticCurveTo(ax,-55,ax-4,-64);ctx.closePath();
+  ctx.fillStyle=metal;ctx.fill();ctx.strokeStyle='#233b4d';ctx.lineWidth=1.5;ctx.stroke();
+  ellipse(ax,-73,8,6,metal);
+  // Breastplate rotated a little farther toward the horse's head.
+  // The broad left side is visible while the front is a slim right-facing edge.
+  const breast=pal?chrome(-14,-81,14,-52):grad(-14,-81,18,-52,[[0,'#f5fbfa'],[.27,shine],[.58,base],[1,'#1b3347']]);
+  ctx.beginPath();ctx.moveTo(-13,-78);ctx.quadraticCurveTo(-6,-83,2,-81);
+  ctx.lineTo(10,-77);ctx.quadraticCurveTo(15,-69,12,-58);
+  ctx.lineTo(7,-51);ctx.lineTo(-9,-56);ctx.closePath();
+  ctx.fillStyle=breast;ctx.fill();ctx.strokeStyle='#102737';ctx.lineWidth=2;ctx.stroke();
+  // Wider side plane and slimmer front plane emphasize the extra turn.
+  polygon([[-11,-75],[-5,-79],[6,-77],[7,-54],[-8,-60]],'#ffffff30');
+  polygon([[6,-77],[10,-77],[12,-58],[7,-51],[7,-54]],'#314c61aa');
+  ctx.beginPath();ctx.moveTo(7,-77);ctx.quadraticCurveTo(10,-66,7,-54);
+  ctx.strokeStyle='#233c50';ctx.lineWidth=1.5;ctx.stroke();
+  // Blue oval fitting with gold edging removed from the Paladin.
+  // Three-quarter right-facing helmet: visible front and side, rather than straight at camera.
+  const helm=pal?chrome(-13,-108,13,-84):grad(-13,-106,14,-85,[[0,'#ffffff'],[.3,'#c5d1db'],[.65,'#6f8292'],[1,'#273a4b']]);
+  ctx.beginPath();ctx.ellipse(1,-96,12.5,15,-.14,0,Math.PI*2);ctx.fillStyle=helm;ctx.fill();ctx.strokeStyle='#344b5c';ctx.lineWidth=1.3;ctx.stroke();
+  // The broad left side of the helmet remains visible; the face turns partway right.
+  polygon([[-11,-98],[-7,-105],[8,-104],[14,-97],[12,-88],[-8,-89]],helm,'#203648',1.4);
+  polygon([[0,-97],[12,-98],[18,-94],[14,-90],[1,-91]],'#182b3d','#273d50',1);
+  line(2,-95,15,-95,shine,1.7);
+  ellipse(-7,-102,2.3,3.5,'#ffffff72');
+  if(pal){
+   const dk='#26323d';
+   // Gorget: steel collar protecting the neck.
+   polygon([[-9,-85],[11,-86],[13,-82],[7,-79.5],[-7,-80],[-11,-82.5]],chrome(-11,-86,13,-79.5),dk,1.2);
+   line(-8,-82.6,10,-83,dk,.9);
+   // Raised median ridge running over the crown.
+   ctx.beginPath();ctx.moveTo(-8,-105);ctx.quadraticCurveTo(3,-112,13,-100);ctx.strokeStyle=dk;ctx.lineWidth=2.2;ctx.stroke();
+   ctx.beginPath();ctx.moveTo(-8,-106);ctx.quadraticCurveTo(3,-113.4,13,-101.4);ctx.strokeStyle='#ffffffe6';ctx.lineWidth=1.1;ctx.stroke();
+   // Hinged visor/bevor over the lower face with breath holes and rivets.
+   polygon([[-9,-93],[14,-94],[17,-89],[13,-84],[1,-83],[-8,-86]],chrome(-9,-94,17,-83),dk,1.2);
+   line(-8,-91,15,-92,dk,.9);
+   line(4,-91.5,4.6,-84.5,dk,.9);line(3,-91,3.6,-85,'#ffffffb0',.7);
+   ellipse(-7,-92,.9,.9,dk);ellipse(-7.3,-92.4,.45,.45,'#ffffff');
+   // Eye slit stays dark with a bright brow lip above it.
+   line(1,-98.6,15,-98.2,'#ffffffe6',1.2);
+  }
+  // Smooth helmet profile without the projecting nose guard.
+  // Substantial, fitted armored arm: rounded shoulder, short upper arm,
+  // articulated elbow and broad forearm reaching the sword grip.
+  ctx.lineCap='round';
+  // Polished plate armor: brighter steel, defined curved plates, and crisp specular highlights.
+  const armSteel=pal?chrome(-14,-78,16,-54):grad(-16,-78,23,-54,[[0,'#ffffff'],[.18,'#e8f3f8'],[.42,'#b6cbd8'],[.7,'#718b9f'],[1,'#253d50']]);
+  ellipse(-5,-72,8.5,8,armSteel);
+  ellipse(-7,-74,4.8,2.3,'#f5fcffb8');
+  line(-5,-69,-7,-59,'#263d50',13);
+  line(-5,-69,-7,-59,armSteel,10);
+  line(-8,-67,-8,-62,'#f5fbffb0',2.3);
+  if(pal){
+   const dk='#26323d';
+   // Pauldron: domed shoulder cap with three overlapping lames and rivets.
+   ctx.save();ctx.beginPath();ctx.ellipse(-5,-72,8.6,8.1,0,0,Math.PI*2);ctx.clip();
+   for(let k=0;k<3;k++){
+    const cy=-77+k*3.9;
+    ctx.beginPath();ctx.ellipse(-5,cy,10,5.2,0,.05*Math.PI,.95*Math.PI);ctx.strokeStyle=dk;ctx.lineWidth=1.3;ctx.stroke();
+    ctx.beginPath();ctx.ellipse(-5,cy-1.2,10,5.2,0,.12*Math.PI,.88*Math.PI);ctx.strokeStyle='#ffffffc8';ctx.lineWidth=.9;ctx.stroke();
+   }
+   ctx.restore();
+   ctx.beginPath();ctx.ellipse(-5,-72,8.6,8.1,0,0,Math.PI*2);ctx.strokeStyle=dk;ctx.lineWidth=1.4;ctx.stroke();
+   ellipse(-8,-75,2,1.3,'#ffffffe0');ellipse(-1.5,-70,.9,.9,dk);ellipse(-8.5,-69.5,.9,.9,dk);
+  }
+  // The elbow plate is drawn over both arm segments below.
+  // Solid tapered vambrace, with a slim bright reflection following its upper edge.
+  line(-7,-59,16,-64,'#263b4d',12);
+  line(-7,-59,16,-64,armSteel,9);
+  line(-4,-61,13,-66,'#f3fbffd0',2.1);
+  // Paladin forearm shield removed at the user's request.
+  // Slight counterclockwise tilt of the elbow plate, retaining its crescent shape.
+  ctx.save();ctx.translate(-9,-60.5);ctx.rotate(-0.16);ctx.translate(9,60.5);
+  // Small partial-circle couter: curved outer shell, open toward the forearm.
+  // A shallow crescent covers the elbow seam without forming a full round disk.
+  ctx.beginPath();
+  ctx.moveTo(-5.4,-65.8);
+  ctx.quadraticCurveTo(-12.6,-68.1,-13.3,-60.6);
+  ctx.quadraticCurveTo(-13.1,-54.9,-6.0,-55.0);
+  ctx.lineTo(-8.2,-58.0);
+  ctx.quadraticCurveTo(-10.1,-60.6,-8.0,-63.3);
+  ctx.closePath();
+  ctx.fillStyle=grad(-13,-66,-5,-55,[[0,'#f9fdff'],[.35,'#dceaf3'],[.75,'#94adbf'],[1,'#40596c']]);
+  ctx.fill();ctx.strokeStyle='#496274';ctx.lineWidth=1.0;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-6.7,-65.1);ctx.quadraticCurveTo(-11.9,-66.0,-12.0,-60.9);
+  ctx.strokeStyle='#ffffffc9';ctx.lineWidth=1.4;ctx.stroke();
+  ctx.restore();
+  // Paladin forearm shield: team-colored heraldic face with a sculpted silver rim.
+  // The recessed half uses a darker shade of the current team's color.
+  if(u.paladinArmor){
+   ctx.save();
+   ctx.translate(0,-66); // shifted the entire shield 5 pixels to the right
+   ctx.rotate(-1.47 + Math.PI); // flipped 180 degrees, tilted further upward
+   // Outer steel rim and pointed heater-shield silhouette.
+   ctx.beginPath();
+   ctx.moveTo(0,-20);ctx.quadraticCurveTo(10,-17,13,-15);
+   ctx.lineTo(12,2);ctx.quadraticCurveTo(10,13,0,21);
+   ctx.quadraticCurveTo(-10,13,-12,2);ctx.lineTo(-13,-15);
+   ctx.quadraticCurveTo(-8,-18,0,-20);ctx.closePath();
+   const rim=ctx.createLinearGradient(-14,-16,14,15);
+   rim.addColorStop(0,'#f3f7fa');rim.addColorStop(.28,'#9aafc0');rim.addColorStop(.55,'#e4edf3');rim.addColorStop(.82,'#627b91');rim.addColorStop(1,'#dce6ed');
+   ctx.fillStyle=rim;ctx.strokeStyle='#314b61';ctx.lineWidth=2.1;ctx.fill();ctx.stroke();
+   // Derive a darker enamel shade from this team's own shield color.
+   const teamDark='#'+[1,3,5].map(i=>Math.round(parseInt(base.slice(i,i+2),16)*.58).toString(16).padStart(2,'0')).join('');
+   const teamDarkEdge='#'+[1,3,5].map(i=>Math.round(parseInt(base.slice(i,i+2),16)*.42).toString(16).padStart(2,'0')).join('');
+   // Dark recessed channel just inside the metal border.
+   ctx.beginPath();ctx.moveTo(0,-16);ctx.quadraticCurveTo(7,-14,9,-12);
+   ctx.lineTo(8,2);ctx.quadraticCurveTo(6,11,0,16);
+   ctx.quadraticCurveTo(-6,11,-8,2);ctx.lineTo(-9,-12);
+   ctx.quadraticCurveTo(-5,-14,0,-16);ctx.closePath();
+   ctx.fillStyle=teamDark;ctx.strokeStyle=teamDarkEdge;ctx.lineWidth=1.2;ctx.fill();ctx.stroke();
+   // Two-tone blue enamel face with a crisp central division and highlights.
+   ctx.save();ctx.beginPath();ctx.moveTo(0,-15);ctx.quadraticCurveTo(6,-13,8,-11);ctx.lineTo(7,2);ctx.quadraticCurveTo(5,10,0,15);ctx.closePath();ctx.clip();
+   ctx.fillStyle=shine;ctx.fillRect(-9,-16,9,34);
+   ctx.fillStyle=base;ctx.fillRect(0,-16,9,34);
+   ctx.beginPath();ctx.moveTo(-8,-11);ctx.lineTo(0,-14);ctx.lineTo(0,14);ctx.lineTo(-7,2);ctx.closePath();ctx.fillStyle='#ffffff';ctx.globalAlpha=.22;ctx.fill();ctx.globalAlpha=1;
+   ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(7,-11);ctx.lineTo(6,2);ctx.lineTo(0,14);ctx.closePath();ctx.fillStyle='#101820';ctx.globalAlpha=.22;ctx.fill();ctx.globalAlpha=1;
+   ctx.restore();
+   // Inner bright bevel and small steel rivets around the perimeter.
+   ctx.beginPath();ctx.moveTo(-9,-12);ctx.quadraticCurveTo(-10,6,0,17);ctx.strokeStyle='#a9d9f2';ctx.lineWidth=1.2;ctx.stroke();
+   for(const [x,y] of [[0,-18],[-10,-13],[10,-13],[-10,1],[10,1],[-6,13],[6,13],[0,19]]) ellipse(x,y,.85,.85,'#e8f2f8','#536d82',.45);
+   ctx.restore();
+  }
+  // Vambrace extends just behind the sword hilt, hiding the gap without a visible hand.
+  ctx.lineCap='butt';
+  if(!u.paladinArmor){
+   // Knight sword, retained for the standard Knight sprite.
+   ctx.save();ctx.translate(21,-62);ctx.scale(.84,.84);ctx.translate(-21,62);ctx.translate(-5,0);
+   line(17,-54,23,-68,'#48372c',5);
+   line(17,-54,23,-68,'#b38a59',2);
+   ellipse(16,-53,3.5,3.5,'#d5b976');
+   line(14,-70,31,-64,'#3a4652',4.8);
+   line(14,-70,31,-64,'#d7c6a0',2.5);
+   polygon([[22,-67],[27,-66],[42,-103],[39,-113],[37,-102]],'#c8d5dd','#526c7e',1.3);
+   polygon([[22,-67],[25,-67],[39,-108],[37,-102]],'#f0f7f7');
+   line(25,-71,39,-105,'#ffffffa8',1.1);
+   ctx.restore();
+  }
+ }else if(cls==='archer'){
+  // Archer shares the original Warrior's realistic steel armor, proportions and shading,
+  // but has a distinct open helmet, bow, and arrow quiver instead of sword and shield.
+  for(let side of [-1,1]){let lx=side*6;let leg=ctx.createLinearGradient(lx-6,-9,lx+7,9);leg.addColorStop(0,'#d4dce3');leg.addColorStop(.45,'#637589');leg.addColorStop(1,'#1e2d3e');polygon([[lx-5,-10],[lx+5,-10],[lx+4,5],[lx-5,5]],leg,'#172a3c',1.5);ellipse(lx-1,7,7,4,'#26384a');ellipse(lx-3,5,4,2,'#9eafbd')}
+  // Team-colored cape, matching the Warrior's silhouette.
+  polygon([[-13,-38],[12,-38],[17,1],[0,-5],[-17,1]],base,'#263241',2);polygon([[-10,-34],[-2,-34],[-7,-3],[-14,-1]],shine);
+  // Leather quiver strapped over the shoulder, behind the armor.
+  ctx.save();ctx.translate(17,-37);ctx.rotate(-.16);
+  polygon([[-6,-16],[7,-16],[6,21],[0,26],[-6,21]],'#815337','#352a26',1.5);
+  polygon([[-6,-16],[7,-16],[7,-11],[-6,-11]],'#b58751','#453023',1);
+  for(let i=0;i<4;i++){let xx=-3+i*3;line(xx,-13,xx,-36,'#cfb185',1.7);polygon([[xx,-36],[xx-2,-41],[xx,-39],[xx+2,-41]],'#e5e4d5','#6d756e',.6)}
+  ctx.restore();
+  let torso=ctx.createLinearGradient(-14,-40,15,-17);torso.addColorStop(0,'#f5fbfa');torso.addColorStop(.25,shine);torso.addColorStop(.55,base);torso.addColorStop(1,'#1b3347');polygon([[-13,-39],[0,-44],[13,-39],[12,-19],[0,-12],[-12,-19]],torso,'#102737',2);polygon([[-9,-36],[0,-40],[0,-16],[-8,-22]],'#ffffff36');line(0,-39,0,-18,'#142d42',1.5);ellipse(0,-29,4,5,'#dbe7f2');
+  // Natural two-segment arms: each bends only at its elbow.
+  // Left hand draws the string back at (-19,-32); right hand grips the bow at (29,-35).
+  const sleeve=ctx.createLinearGradient(-30,-43,33,-20);
+  sleeve.addColorStop(0,'#edf3f5');sleeve.addColorStop(.4,'#a4b5c3');sleeve.addColorStop(1,'#435b6e');
+  ctx.lineCap='round';
+  // Bow arm: shoulder -> elbow -> bow handle.
+  line(15,-36,22,-22,'#263b4b',10);line(22,-22,29,-35,'#263b4b',9);
+  line(15,-36,22,-22,sleeve,7);line(22,-22,29,-35,sleeve,6);
+  ellipse(15,-37,7,7,sleeve);ellipse(22,-22,4.5,4.5,'#8195a5');
+  // Drawing arm: horizontal upper arm, then a short elbow bend to the drawn string.
+  line(-15,-36,-29,-36,'#263b4b',10);line(-29,-36,-19,-32,'#263b4b',9);
+  line(-15,-36,-29,-36,sleeve,7);line(-29,-36,-19,-32,sleeve,6);
+  ellipse(-15,-37,7,7,sleeve);ellipse(-29,-36,4.5,4.5,'#8195a5');
+  // Small gloves terminate exactly at the bow grip and drawn string.
+  ellipse(29,-35,4.5,4,'#b4a08a');ellipse(-19,-32,4.5,4,'#b4a08a');
+  // Warrior-style domed helmet, but with an open face and narrow brow guard.
+  let helm=ctx.createLinearGradient(-13,-61,14,-42);helm.addColorStop(0,'#ffffff');helm.addColorStop(.3,'#c5d1db');helm.addColorStop(.65,'#6f8292');helm.addColorStop(1,'#273a4b');ellipse(0,-50,13,15,helm);polygon([[-13,-53],[-9,-60],[9,-60],[13,-53],[10,-45],[-10,-45]],helm,'#203648',1.4);polygon([[-9,-51],[9,-51],[7,-45],[-7,-45]],'#a78166','#293c4a',1);ellipse(-4,-49,1.2,1.1,'#26313a');ellipse(4,-49,1.2,1.1,'#26313a');
+  // The bow remains fixed; both arms meet its handle and pulled string.
+  ctx.lineCap='round';
+  // Bow shifted left so the handle sits in the right hand and string in the left.
+  ctx.beginPath();ctx.moveTo(16,-69);ctx.bezierCurveTo(30,-60,33,-44,31,-35);ctx.bezierCurveTo(33,-23,27,-8,16,4);ctx.strokeStyle='#3d2a20';ctx.lineWidth=6.5;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(16,-69);ctx.bezierCurveTo(30,-60,33,-44,31,-35);ctx.bezierCurveTo(33,-23,27,-8,16,4);ctx.strokeStyle='#ae8050';ctx.lineWidth=4;ctx.stroke();
+  // Bowstring drawn back to the Archer's opposite shoulder; bow and hands stay put.
+  line(16,-69,-19,-32,'#e4ded2',1.3);line(-19,-32,16,4,'#e4ded2',1.3);line(29,-41,31,-29,'#5d3826',4);
+  // Nocked arrow gives the Archer an instantly recognizable silhouette.
+  line(-8,-30,47,-33,'#d7bd93',2);polygon([[51,-33],[45,-37],[45,-29]],'#d9e6ea','#667d88',.9);polygon([[-8,-30],[-15,-34],[-13,-30],[-15,-26]],'#f0e7d2','#8c988e',.7);
+  ctx.lineCap='butt';
+ }else if(cls==='guard'){
+  // Guard shares the Warrior's body proportions, plate breastplate, cape and
+  // rounded helmet. His iconic full-sized tower shield is left untouched.
+  for(let side of [-1,1]){let lx=side*6;let leg=ctx.createLinearGradient(lx-6,-9,lx+7,9);leg.addColorStop(0,'#d4dce3');leg.addColorStop(.45,'#637589');leg.addColorStop(1,'#1e2d3e');polygon([[lx-5,-10],[lx+5,-10],[lx+4,5],[lx-5,5]],leg,'#172a3c',1.5);ellipse(lx-1,7,7,4,'#26384a');ellipse(lx-3,5,4,2,'#9eafbd')}
+  polygon([[-13,-38],[12,-38],[17,1],[0,-5],[-17,1]],base,'#263241',2);polygon([[-10,-34],[-2,-34],[-7,-3],[-14,-1]],shine);
+  // Rounded metal sleeves and shoulders, matching the standard Warrior.
+  for(let side of [-1,1]){let ax=side*15;let metal=ctx.createLinearGradient(ax-7,-37,ax+8,-16);metal.addColorStop(0,'#eaf2f4');metal.addColorStop(.3,'#9daeba');metal.addColorStop(.7,'#455c6e');metal.addColorStop(1,'#1c2939');polygon([[ax-side*4,-34],[ax+side*7,-29],[ax+side*6,-15],[ax-side*2,-13]],metal,'#152b3a',1.5);ellipse(ax,-32,8,6,metal)}
+  let torso=ctx.createLinearGradient(-14,-40,15,-17);torso.addColorStop(0,'#f5fbfa');torso.addColorStop(.25,shine);torso.addColorStop(.55,base);torso.addColorStop(1,'#1b3347');polygon([[-13,-39],[0,-44],[13,-39],[12,-19],[0,-12],[-12,-19]],torso,'#102737',2);polygon([[-9,-36],[0,-40],[0,-16],[-8,-22]],'#ffffff36');line(0,-39,0,-18,'#142d42',1.5);ellipse(0,-29,4,5,'#dbe7f2');
+  // Warrior-family domed helmet with a guarded face opening.
+  let helm=ctx.createLinearGradient(-13,-61,14,-42);helm.addColorStop(0,'#ffffff');helm.addColorStop(.3,'#c5d1db');helm.addColorStop(.65,'#6f8292');helm.addColorStop(1,'#273a4b');ellipse(0,-50,13,15,helm);polygon([[-13,-51],[-9,-58],[9,-58],[13,-51],[10,-42],[-10,-42]],helm,'#203648',1.4);polygon([[-10,-51],[10,-51],[8,-45],[-8,-45]],'#182b3d');line(-8,-48,8,-48,shine,2);polygon([[-3,-62],[3,-62],[4,-41],[-4,-41]],'#b3c4cf','#4c6273',1);
+  // Swordsman uses the Guard armor but carries no spear.
+  if(!u.swordsmanShield){
+   line(22,13,22,-83,'#765138',5);line(21,-74,21,-20,'#c39b6e',1.2);
+   polygon([[22,-98],[29,-79],[22,-67],[15,-79]],'#dce8e9','#455d6d',1.8);line(22,-92,22,-72,'#f7faf6',1.4);
+  }
+  // No hand drawn around the spear; retain the Guard's armored sleeve.
+  // Slightly shrink the complete shield around its center, preserving its design.
+  ctx.save();if(u.swordsmanShield)ctx.translate(4,0);ctx.translate(-23,-18);const shieldScale=u.swordsmanShield?.65:.92;ctx.scale(shieldScale,shieldScale);ctx.translate(23,18);
+  // Enlarged curved tower shield covers almost all of the guard's front.
+  // Smooth outline, beveled steel edge and subtle shaded metal instead of faceted geometry.
+  const shield=ctx.createLinearGradient(-46,-54,-2,10);shield.addColorStop(0,'#edf4f1');shield.addColorStop(.19,'#aebfca');shield.addColorStop(.55,base);shield.addColorStop(.83,'#415e71');shield.addColorStop(1,'#1d3241');
+  ctx.beginPath();ctx.moveTo(-46,-54);ctx.quadraticCurveTo(-23,-63,0,-54);ctx.lineTo(0,2);ctx.quadraticCurveTo(-6,16,-23,25);ctx.quadraticCurveTo(-41,17,-46,2);ctx.closePath();ctx.fillStyle='#243747';ctx.fill();ctx.strokeStyle='#d8e5e8';ctx.lineWidth=3.2;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-41,-49);ctx.quadraticCurveTo(-23,-56,-5,-49);ctx.lineTo(-5,0);ctx.quadraticCurveTo(-10,12,-23,19);ctx.quadraticCurveTo(-36,11,-41,0);ctx.closePath();ctx.fillStyle=shield;ctx.fill();ctx.strokeStyle='#354d5d';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.beginPath();ctx.moveTo(-36,-45);ctx.quadraticCurveTo(-32,-47,-28,-48);ctx.lineTo(-28,9);ctx.quadraticCurveTo(-33,5,-36,-3);ctx.closePath();ctx.fillStyle='#ffffff2b';ctx.fill();
+  line(-23,-45,-23,15,'#e4d6a6',4);line(-37,-18,-9,-18,'#e4d6a6',4);ellipse(-23,-18,6,6,'#dfbb71');ellipse(-23,-18,2,2,'#fff0bc');
+  for(const [xx,yy] of [[-39,-46],[-8,-46],[-39,-1],[-8,-1]])ellipse(xx,yy,1.8,1.8,'#e8e9e2');
+  ctx.restore();
+
+ }
+}
+// Hand-painted pseudo-3D knight: layered shaded metal, separate legs, torso, rounded helmet and shield.
+function warrior(u,skipOutline=false){if(animation&&animation.capture&&animation.defender===units.indexOf(u)&&animation.progress>.42){ctx.save();ctx.globalAlpha=Math.max(0,1-(animation.progress-.42)/.4);}let p=point(u.x,u.y),x=p.x,y=p.y+14;if(animation&&animation.attacker===units.indexOf(u)&&u.warriorClass!=='catapult'&&u.warriorClass!=='archer'){let t=animation.progress;let v=units[animation.defender];let q=point(v.x,v.y);if(animation.capture){let f=t*t*(3-2*t);x+=(q.x-p.x)*f;y+=(q.y-p.y)*f;}else{let l=Math.sin(Math.PI*Math.min(1,t/.58))*17;x+=(q.x-p.x)/Math.max(1,Math.hypot(q.x-p.x,q.y-p.y))*l;y+=(q.y-p.y)/Math.max(1,Math.hypot(q.x-p.x,q.y-p.y))*l;}}let [base,shine]=colors[u.id];ctx.save();if(!skipOutline)ellipse(x,y+12,19,6,'#10212ba9');
+// Outline is made from the sprite's actual alpha silhouette, not an ellipse.
+if(!skipOutline&&!finished&&u.hp>0&&((u.id===turn&&u.stepsLeft>0&&!u.collected&&!u.attacked)||(unitSelected&&units.indexOf(u)===selectedUnit&&(u.stepsLeft<=0||u.collected||u.attacked)))){
+ const original=ctx;outlineCtx.setTransform(1,0,0,1,0,0);outlineCtx.clearRect(0,0,W,H);
+ ctx=outlineCtx;warrior(u,true);ctx=original;
+ outlineCtx.globalCompositeOperation='source-in';outlineCtx.fillStyle=(unitSelected&&units.indexOf(u)===selectedUnit&&(u.stepsLeft<=0||u.collected||u.attacked))?'#ffffff':colors[u.id][0];outlineCtx.fillRect(0,0,W,H);outlineCtx.globalCompositeOperation='source-over';
+ ctx.save();ctx.globalAlpha=.72;
+ for(const [dx,dy] of [[-2,0],[2,0],[0,-2],[0,2],[-1.4,-1.4],[1.4,-1.4],[-1.4,1.4],[1.4,1.4]])ctx.drawImage(outlineCanvas,dx,dy);
+ ctx.restore();
+}
+ctx.translate(x,y);let scale=.65;ctx.scale(scale,scale);
+if(u.warriorClass!=="warrior"){
+ drawClassSprite(u,base,shine);ctx.restore();
+ // Archers fire a visible arrow across the board instead of lunging forward.
+ if(animation&&animation.attacker===units.indexOf(u)&&u.warriorClass==='archer'){
+  const target=units[animation.defender],t=animation.progress;
+  if(target&&t>.12&&t<.9){
+   const a={x:p.x,y:p.y+2},b=point(target.x,target.y);
+   const f=(t-.12)/.78,dx=b.x-a.x,dy=b.y-a.y;
+   const lift=Math.sin(Math.PI*f)*Math.min(48,Math.hypot(dx,dy)*.18);
+   const ax=a.x+dx*f,ay=a.y+dy*f-lift;
+   const angle=Math.atan2(dy- Math.cos(Math.PI*f)*lift*.9,dx);
+   ctx.save();ctx.translate(ax,ay);ctx.rotate(angle);
+   ctx.lineCap='round';ctx.strokeStyle='#70451f';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-13,0);ctx.lineTo(10,0);ctx.stroke();
+   ctx.fillStyle='#c8d0d5';ctx.beginPath();ctx.moveTo(15,0);ctx.lineTo(7,-4);ctx.lineTo(7,4);ctx.closePath();ctx.fill();
+   ctx.strokeStyle='#e6e0c9';ctx.lineWidth=1.6;ctx.beginPath();ctx.moveTo(-11,0);ctx.lineTo(-16,-4);ctx.moveTo(-11,0);ctx.lineTo(-16,4);ctx.stroke();
+   ctx.restore();
+  }
+ }
+ if(animation&&animation.capture&&animation.defender===units.indexOf(u)&&animation.progress>.42)ctx.restore();return;
+}
+// Legs and boots
+for(let side of [-1,1]){let lx=side*6;let leg=ctx.createLinearGradient(lx-6,-9,lx+7,9);leg.addColorStop(0,'#d4dce3');leg.addColorStop(.45,'#637589');leg.addColorStop(1,'#1e2d3e');polygon([[lx-5,-10],[lx+5,-10],[lx+4,5],[lx-5,5]],leg,'#172a3c',1.5);ellipse(lx-1,7,7,4,'#26384a');ellipse(lx-3,5,4,2,'#9eafbd')}
+// back cape
+polygon([[-13,-38],[12,-38],[17,1],[0,-5],[-17,1]],base,'#263241',2);polygon([[-10,-34],[-2,-34],[-7,-3],[-14,-1]],shine);
+// arms, layered shoulders
+for(let side of [-1,1]){let ax=side*15;let metal=ctx.createLinearGradient(ax-7,-37,ax+8,-16);metal.addColorStop(0,'#eaf2f4');metal.addColorStop(.3,'#9daeba');metal.addColorStop(.7,'#455c6e');metal.addColorStop(1,'#1c2939');polygon([[ax-side*4,-34],[ax+side*7,-29],[ax+side*6,-15],[ax-side*2,-13]],metal,'#152b3a',1.5);ellipse(ax,-32,8,6,metal)}
+// rounded torso breastplate
+let torso=ctx.createLinearGradient(-14,-40,15,-17);torso.addColorStop(0,'#f5fbfa');torso.addColorStop(.25,shine);torso.addColorStop(.55,base);torso.addColorStop(1,'#1b3347');polygon([[-13,-39],[0,-44],[13,-39],[12,-19],[0,-12],[-12,-19]],torso,'#102737',2);polygon([[-9,-36],[0,-40],[0,-16],[-8,-22]],'#ffffff36');line(0,-39,0,-18,'#142d42',1.5);ellipse(0,-29,4,5,'#dbe7f2');
+// helmet and raised faceplate
+let helm=ctx.createLinearGradient(-13,-61,14,-42);helm.addColorStop(0,'#ffffff');helm.addColorStop(.3,'#c5d1db');helm.addColorStop(.65,'#6f8292');helm.addColorStop(1,'#273a4b');ellipse(0,-50,13,15,helm);polygon([[-13,-51],[-9,-58],[9,-58],[13,-51],[10,-42],[-10,-42]],helm,'#203648',1.4);polygon([[-10,-51],[10,-51],[8,-45],[-8,-45]],'#182b3d');line(-8,-48,8,-48,shine,2);polygon([[-3,-64],[3,-64],[4,-40],[-4,-40]],'#b3c4cf','#4c6273',1);ellipse(-6,-57,3,4,'#ffffff72');
+// Shield in foreground (left)
+let shield=ctx.createLinearGradient(-26,-34,-7,-10);shield.addColorStop(0,'#f4fafb');shield.addColorStop(.35,shine);shield.addColorStop(.7,base);shield.addColorStop(1,'#1a3146');polygon([[-24,-36],[-9,-33],[-9,-15],[-18,-6],[-27,-16]],shield,'#14283c',2);polygon([[-21,-32],[-13,-30],[-13,-16],[-18,-12],[-23,-18]],'#ffffff26');line(-18,-29,-18,-13,'#e4edf5',2);line(-23,-22,-13,-21,'#e4edf5',2);
+// Right-hand sword: grip meets the gauntlet; crossguard sits above the hand.
+// The hilt and blade share the same diagonal axis, rather than floating apart.
+line(20,-21,25,-34,'#563c2b',4.8); // leather-wrapped grip
+line(21,-24,24,-31,'#b58a57',1.2);
+polygon([[24,-35],[32,-65],[33,-69],[29,-36]],'#e7f3f6','#738999',1);
+polygon([[33,-69],[32,-65],[29,-36],[27,-34]],'#7d9eae');
+line(17,-37,33,-32,'#e8c37c',3.8); // crossguard, perpendicular to grip
+ellipse(20,-21,4.5,4.3,'#667d90'); // armored fist wrapped around hilt
+ellipse(19,-22,2.3,1.7,'#dce7ec');
+ctx.restore();if(animation&&animation.capture&&animation.defender===units.indexOf(u)&&animation.progress>.42)ctx.restore()}
+function overlays(){if(animation||!unitSelected)return;let u=active();if(finished||u.hp<=0)return;for(let y=0;y<N;y++)for(let x=0;x<N;x++){let kind=validMove(x,y)?'move':validAttack(x,y)?'attack':null;if(!kind)continue;let p=point(x,y);ctx.save();ctx.translate(p.x,p.y+TH/2);ctx.scale(S,S);ctx.translate(-p.x,-(p.y+TH/2));polygon([[p.x,p.y+3],[p.x+TW/2-4,p.y+TH/2],[p.x,p.y+TH-3],[p.x-TW/2+4,p.y+TH/2]],kind==='move'?'#6cfc8a55':'#ff525b88',kind==='move'?'#86ff9c':'#ff777e',1.5);ctx.restore()}}
+// A pitched canvas tent, wooden base, and team-colored banner. Drawn behind units,
+// with the tall flag remaining visible above an occupying knight.
+function drawCamp(c){
+ const p=point(c.x,c.y),col=colors[c.owner][0],bright=colors[c.owner][1];
+ ctx.save();ctx.translate(p.x,p.y);
+ // All four tent-footprint points share the same center and perspective as the deck.
+ // No additional translation: the canvas is actually centered on the platform.
+ ellipse(0,17,27,9,'#07131b99');
+ const deck=[[-25,10],[-1,23],[26,10],[2,-3]];
+ polygon(deck,'#795237','#32271f',1.4);
+ polygon([[-25,10],[-1,23],[-1,26],[-25,13]],'#4d3528');
+ polygon([[-1,23],[26,10],[26,13],[-1,26]],'#583c2b');
+ line(-18,13,-1,22,'#bc8a59',1.3);line(-8,8,11,17,'#a8784d',1.1);
+ // Tent base is an inset parallelogram with the SAME center as the deck.
+ const FL=[-19,10],FR=[0,19],BL=[2,1],BR=[21,10];
+ const RF=[-9,-16],RB=[12,-25];
+ // Guy ropes and ground pegs are rendered BEHIND the tent fabric.
+ // Keep every peg inside its own terrain diamond, even beside mountains.
+ const ropes=[
+   {from:FL,to:[-28,17]},
+   {from:FR,to:[0,30]},
+   {from:BL,to:[0,5]},
+   {from:BR,to:[28,17]}
+ ];
+ for(const r of ropes){
+   line(r.from[0],r.from[1]-2,r.to[0],r.to[1]-2,'#423525',2);
+   line(r.from[0],r.from[1]-2,r.to[0],r.to[1]-2,'#ead2a4',1.05);
+   line(r.to[0],r.to[1]-4,r.to[0],r.to[1]+2,'#785336',2.5);
+   ellipse(r.to[0],r.to[1]-4,1.6,1.1,'#c99a60');
+ }
+ const roof=ctx.createLinearGradient(-10,-23,22,12);
+ roof.addColorStop(0,bright);roof.addColorStop(.55,col);roof.addColorStop(1,'#344554');
+ polygon([RF,RB,BR,FR],roof,'#263744',1.3);
+ const front=ctx.createLinearGradient(-14,-13,6,17);
+ front.addColorStop(0,bright);front.addColorStop(.55,col);front.addColorStop(1,'#425767');
+ polygon([RF,FL,FR],front,'#263744',1.4);
+ // Small triangular entrance sits entirely inside the front gable.
+ polygon([[-9,14],[-7,1],[-3,16]],'#172b35','#243e4a',.8);
+ polygon([[-7,1],[-5,15],[-3,16]],'#263c47');
+ line(-9,-16,0,19,'#f1e8d388',1);
+ line(-19,10,0,19,'#162c3799',1);
+ line(17,9,17,-47,'#d9bc8d',2.3);
+ polygon([[17,-46],[29,-43],[17,-36]],col,'#1b3040',1.2);
+ polygon([[17,-46],[23,-44],[17,-36]],bright);
+ ellipse(17,-48,2.3,2.3,'#ffe3aa');
+ ctx.restore();
+}
+function drawVillage(c){
+ const p=point(c.x,c.y);
+ ctx.save();ctx.translate(p.x,p.y+7);
+ // Weathered medieval cottage: muted limewash, aged oak and irregular slate.
+ ellipse(0,16,25,8,'#06141b77');
+ polygon([[-21,4],[0,15],[21,4],[0,-7]],'#817c70','#45453f',1);
+ polygon([[-21,4],[0,15],[0,18],[-21,7]],'#5e615b');
+ polygon([[0,15],[21,4],[21,7],[0,18]],'#76776f');
+ // Slightly stained plaster, kept simple and legible at game scale.
+ polygon([[-19,-13],[0,-3],[0,13],[-19,3]],'#b8ab8e','#4b3e30',1.3);
+ polygon([[0,-3],[20,-13],[20,3],[0,13]],'#9e967e','#4b3e30',1.3);
+ polygon([[-17,-10],[-11,-7],[-11,-4],[-17,-7]],'#8e87735c');
+ polygon([[11,4],[18,0],[18,2],[11,7]],'#716f6055');
+ // Darkened crooked old oak framing and diagonal braces.
+ line(-17,-12,-17,3,'#594432',2.4);line(-2,-4,-2,12,'#594432',2.3);
+ line(2,-4,2,12,'#554333',2);line(18,-12,18,3,'#594432',2.4);
+ line(-19,-1,0,9,'#6b5039',1.8);line(0,9,20,-1,'#6b5039',1.8);
+ line(-17,-12,-9,-2,'#6b5039',1.3);line(18,-12,11,-1,'#6b5039',1.3);
+ // Single continuous roof: front gable and two matched slopes.
+ // Gable first so it cannot cover or cut through the roof panels.
+ polygon([[-19,-13],[-3,-33],[0,-3]],'#b4a88c','#504031',1.1);
+ line(-3,-31,-3,-7,'#5d4937',1.7);
+ line(-15,-13,-3,-27,'#6d543c',1.5);
+ // Roof ridge follows the isometric depth axis; both slopes share endpoints.
+ polygon([[-23,-14],[-3,-38],[21,-27],[0,-3]],'#71675c','#3e3731',1.2);
+ polygon([[-3,-38],[21,-27],[25,-13],[0,-3]],'#575650','#35332e',1.2);
+ line(-17,-17,-2,-7,'#978a786b',.75);
+ line(-12,-23,-3,-16,'#978a786b',.75);
+ line(2,-30,22,-21,'#97918a8a',.8);
+ line(2,-23,24,-15,'#8e89817a',.8);
+ // A weathered plank door with an iron latch.
+ polygon([[-14,-2],[-7,2],[-7,12],[-14,8]],'#55412f','#302820',1.2);
+ line(-12.5,-1,-12.5,8,'#8a6a4b',.7);line(-10,1,-10,10,'#3d3025',.8);
+ ellipse(-9,7,1,1,'#b2a18a');
+ // Small leaded windows, darker and less modern than bright blue glass.
+ polygon([[5,-4],[12,-7],[12,1],[5,4]],'#667d7b','#473b2e',1.7);
+ line(8.5,-5.5,8.5,2.5,'#56483a',1.2);line(5,0,12,-3,'#56483a',1.2);
+ polygon([[14,-9],[18,-11],[18,-4],[14,-2]],'#667d7b','#473b2e',1.4);
+ line(16,-10,16,-3,'#56483a',.9);
+ // Small stone chimney with a soot-darkened top.
+ polygon([[10,-29],[15,-31],[15,-22],[10,-20]],'#88857c','#44423e',.8);
+ polygon([[15,-31],[18,-29],[18,-21],[15,-22]],'#66645e','#44423e',.8);
+ line(10,-29,15,-31,'#393b38',1.4);
+ drawVillageFlags(c);
+ ctx.restore();
+}
+function drawFortress(c){
+ const p=point(c.x,c.y),col=colors[c.owner][0],bright=colors[c.owner][1];
+ ctx.save();ctx.translate(p.x,p.y+8);
+ // Draw all three team flags first so the stone fortress visibly overlaps
+ // their lower poles and flag bases, as if they are mounted behind the walls.
+ drawVillageFlags(c,true);
+ // Broad stone foundation, with a dark lower course to anchor the castle.
+ ellipse(0,16,34,8,'#06141b88');
+ polygon([[-32,7],[0,19],[32,7],[0,-5]],'#77766e','#383a38',1.2);
+ polygon([[-32,7],[0,19],[0,23],[-32,11]],'#555a56','#343a38',1);
+ polygon([[0,19],[32,7],[32,11],[0,23]],'#696a63','#343a38',1);
+ // The lower curtain wall links the two round towers.
+ const wall=ctx.createLinearGradient(0,-22,0,14);
+ wall.addColorStop(0,'#aaa797');wall.addColorStop(.45,'#8d8b7e');wall.addColorStop(1,'#66685f');
+ polygon([[-25,-22],[0,-29],[25,-22],[25,11],[0,17],[-25,11]],wall,'#414541',1.4);
+ // Recessed wall planes and stone courses.
+ polygon([[-25,-22],[0,-29],[0,13],[-25,11]],'#aaa797','#55564f',.8);
+ polygon([[0,-29],[25,-22],[25,11],[0,13]],'#777a72','#464943',.8);
+ for(let y of [-17,-8,1,9]){
+   line(-23,y-1,0,y+5,'#5d6059',.75);line(0,y+5,23,y-1,'#555951',.75);
+ }
+ for(const x of [-18,-11,-4,5,12,19]){
+   line(x,-16+(x<0?(-x*.12):(x*.12)),x,-10+(x<0?(-x*.12):(x*.12)),'#66675f',.7);
+ }
+ // Crenellated parapet along the connecting wall.
+ for(const x of [-23,-16,-9,0,9,16,23]){
+   const y=-25+Math.abs(x)*.12;
+   polygon([[x-2,y+1],[x+2,y],[x+2,y+6],[x-2,y+7]],'#aaa99d','#51534d',.8);
+ }
+ // Tall central gatehouse, slightly proud of the curtain wall.
+ const keep=ctx.createLinearGradient(-16,-42,17,12);
+ keep.addColorStop(0,'#b7b3a4');keep.addColorStop(.48,'#929083');keep.addColorStop(1,'#686b64');
+ polygon([[-16,-37],[0,-43],[16,-37],[16,12],[0,17],[-16,12]],keep,'#454944',1.4);
+ polygon([[-16,-37],[0,-43],[0,13],[-16,12]],'#b0aa99','#56564e',.7);
+ polygon([[0,-43],[16,-37],[16,12],[0,13]],'#777a72','#4b4e49',.7);
+ // Strong central battlements, like the reference castle's gatehouse crown.
+ for(const x of [-14,-8,-2,4,10]){
+   const y=-40+Math.abs(x)*.18;
+   polygon([[x,y+2],[x+4,y],[x+4,y+7],[x,y+9]],'#b5b1a2','#55564e',.9);
+ }
+ line(-14,-32,-1,-27,'#d0c8b4',1);line(1,-27,14,-32,'#555a54',1);
+ // Narrow arrow slits on the upper keep.
+ for(const x of [-10,10]){
+   line(x,-29,x,-23,'#343a39',2.3);line(x-.6,-29,x-.6,-23,'#c1bba9',.55);
+ }
+ // Two tall cylindrical towers: round shoulders, shaded stone faces, and crenellated crowns.
+ function roundTower(cx){
+   const top=-39,base=13,r=9;
+   const g=ctx.createLinearGradient(cx-r,0,cx+r,0);
+   g.addColorStop(0,'#696b65');g.addColorStop(.22,'#aaa797');g.addColorStop(.52,'#c0b9a6');g.addColorStop(.82,'#898a80');g.addColorStop(1,'#595e58');
+   ctx.beginPath();ctx.moveTo(cx-r,top+5);
+   ctx.quadraticCurveTo(cx-r,top,cx,top);
+   ctx.quadraticCurveTo(cx+r,top,cx+r,top+5);
+   ctx.lineTo(cx+r,base-2);
+   ctx.quadraticCurveTo(cx,base+3,cx-r,base-2);
+   ctx.closePath();ctx.fillStyle=g;ctx.fill();ctx.strokeStyle='#414640';ctx.lineWidth=1.35;ctx.stroke();
+   // Rounded top rim and the square merlons around it.
+   ctx.beginPath();ctx.ellipse(cx,top+2,r,3.2,0,Math.PI,Math.PI*2);ctx.fillStyle='#b8b3a4';ctx.fill();ctx.strokeStyle='#55584f';ctx.lineWidth=.9;ctx.stroke();
+   for(const dx of [-7,-2,3,7]){
+     polygon([[cx+dx-1.4,top+1],[cx+dx+1.4,top+1],[cx+dx+1.4,top-4],[cx+dx-1.4,top-4]],'#aaa797','#50534c',.7);
+   }
+   // Uneven horizontal joints follow the curvature of the tower.
+   for(const yy of [-27,-17,-7,3]){
+     const t=(yy-top)/(base-top),half=7.4+Math.min(1,t)*1.3;
+     line(cx-half,yy,cx+half,yy,'#65675f',.7);
+     line(cx-half+1,yy-1,cx+half-1,yy-1,'#d0c8b5',.45);
+   }
+   line(cx-4,top+9,cx-4,base-7,'#d5cdb9aa',.8);
+   // Two dark arrow slits with stone edges.
+   for(const yy of [-20,-2]){
+     line(cx+2.4,yy-2,cx+2.4,yy+3,'#343a39',1.8);
+     line(cx+1.5,yy-2,cx+1.5,yy+3,'#d4cbb6',.55);
+   }
+   // Small irregular block joints add weathered masonry without clutter.
+   line(cx-7,-12,cx-3,-12,'#595d56',.7);line(cx+4,7,cx+7,7,'#555951',.7);
+ }
+ roundTower(-23);roundTower(23);
+ // Heavy stone arch and recessed portcullis at the center of the gatehouse.
+ ctx.beginPath();ctx.moveTo(-8,15);ctx.lineTo(-8,0);ctx.quadraticCurveTo(-8,-12,0,-12);ctx.quadraticCurveTo(8,-12,8,0);ctx.lineTo(8,15);ctx.closePath();
+ const arch=ctx.createLinearGradient(-8,-10,8,15);arch.addColorStop(0,'#343532');arch.addColorStop(1,'#151c1c');ctx.fillStyle=arch;ctx.fill();ctx.strokeStyle='#514b40';ctx.lineWidth=2.5;ctx.stroke();
+ // Inner timber gate, recessed in shadow.
+ polygon([[-5,14],[-5,1],[0,-5],[5,1],[5,14]],'#493a2b','#211f1c',.9);
+ line(0,-3,0,13,'#261f19',1.2);line(-4,5,4,5,'#806346',.7);
+ ellipse(3,8,1,1,'#c3a36d');
+ // Stone voussoirs around the arched entrance.
+ for(let i=0;i<5;i++){
+   const a=Math.PI+i*Math.PI/4;
+   const x=Math.cos(a)*9,y=-1+Math.sin(a)*10;
+   line(x,y,x*.82,y*.82,'#c5bca8',1.4);
+ }
+ // A few irregular masonry seams and dark narrow side openings.
+ line(-14,-18,-14,-12,'#383e3b',1.8);line(14,-18,14,-12,'#383e3b',1.8);
+ line(-19,2,-19,7,'#3b403b',1.4);line(19,2,19,7,'#3b403b',1.4);
+ line(-12,-34,-7,-32,'#d0c8b5',.7);line(7,-32,12,-34,'#50544e',.7);
+ ctx.restore();
+}
+function drawVillageFlags(c,isFortress=false){
+ const col=colors[c.owner][0],bright=colors[c.owner][1];
+ // Towns keep their original two flags; only fortresses get the third central standard.
+ const standards=isFortress?[{x:-23,y:-37,h:27,dir:-1},{x:0,y:-44,h:29,dir:1},{x:23,y:-37,h:27,dir:1}]:[{x:-15,y:-20,h:27,dir:-1},{x:15,y:-20,h:27,dir:1}];
+ for(const f of standards){
+   line(f.x,f.y+3,f.x,f.y-f.h,'#d9b784',1.8);
+   polygon([[f.x,f.y-f.h],[f.x+f.dir*10,f.y-f.h+3],[f.x,f.y-f.h+10]],col,'#243341',.8);
+   polygon([[f.x,f.y-f.h],[f.x+f.dir*5,f.y-f.h+2],[f.x,f.y-f.h+10]],bright);
+   ellipse(f.x,f.y-f.h,1.6,1.6,'#efcf91');
+ }
+}
+function updateUnitUpgradeUI(){
+ const icon=document.getElementById('unitUpgradeIcon'),popup=document.getElementById('unitUpgradePopup');
+ const u=active(),eligible=upgradeIconReady&&!finished&&!busy&&!animation&&!gatherFX&&unitSelected&&u.hp>0&&u.id===turn&&!!upgradePaths[u.warriorClass];
+ if(!eligible){icon.style.display='none';popup.style.display='none';return;}
+ const canvas=document.getElementById('game'),wrap=document.getElementById('boardWrap');
+ const scale=canvas.getBoundingClientRect().width/W;
+ const pt=point(u.x,u.y),left=canvas.offsetLeft+pt.x*scale,top=canvas.offsetTop+(pt.y-68)*scale;
+ icon.style.left=Math.max(4,Math.min(wrap.clientWidth-45,left+15.5*scale))+'px';
+ icon.style.top=Math.max(4,top-17)+'px';icon.style.display='flex';
+ popup.style.left=Math.max(4,Math.min(wrap.clientWidth-205,left-90))+'px';
+ popup.style.top=Math.max(4,top-165)+'px';
+ const choice=document.getElementById('classChoice'),allowed=upgradePaths[u.warriorClass]||[];for(const opt of choice.options){opt.hidden=!allowed.includes(opt.value);opt.disabled=!allowed.includes(opt.value)||boardClassCount(opt.value)>=upgradeClassLimit(opt.value)}const firstAvailable=[...choice.options].find(opt=>allowed.includes(opt.value)&&!opt.disabled);if(!allowed.includes(choice.value)||choice.selectedOptions[0]?.disabled){if(firstAvailable)choice.value=firstAvailable.value;}choice.disabled=!canSelectUpgradeTarget();popup.querySelector('div').textContent='Upgrade '+u.warriorClass[0].toUpperCase()+u.warriorClass.slice(1)+' · '+upgradeCost(u)+' Ore';document.getElementById('upgradeInfo').textContent=u.ore<upgradeCost(u)?'Need '+upgradeCost(u)+' ore to upgrade.':!firstAvailable?'All available upgrade classes are at their unit limits.':'';
+}
+// Health indicator: team-colored badge with the HP number, plus a color-coded bar with a tick every 5 HP.
+const HB_TOP={warrior:-54,knight:-82,paladin:-82,guard:-74,swordsman:-54,archer:-60,catapult:-48};
+function drawHealthBar(u){
+ const st=unitStats(u),max=st.health,hp=Math.max(0,Math.min(max,u.hp)),ratio=hp/max;
+ const p=point(u.x,u.y),cx=p.x,cy=p.y+14+(HB_TOP[u.warriorClass]??-60);
+ const bw=46,bh=9,r=9.5,gap=-3,total=r*2+gap+bw,left=cx-total/2,bx=left+r*2+gap,by=cy-bh/2;
+ const team=colors[u.id][0],fillc=ratio>.6?'#4fd67f':ratio>.3?'#f2c94c':'#ea5550',fillc2=ratio>.6?'#2f9e58':ratio>.3?'#c99a1c':'#b32f2c';
+ ctx.save();ctx.lineJoin='round';
+ // Bar track
+ ctx.beginPath();ctx.roundRect(bx-.5,by-.5,bw+1,bh+1,4.5);ctx.fillStyle='#0b141c';ctx.fill();ctx.strokeStyle='#e8eef3d0';ctx.lineWidth=1.3;ctx.stroke();
+ // Fill (clipped to the track)
+ ctx.save();ctx.beginPath();ctx.roundRect(bx+1,by+1,bw-2,bh-2,3.4);ctx.clip();
+ const g=ctx.createLinearGradient(0,by,0,by+bh);g.addColorStop(0,fillc);g.addColorStop(1,fillc2);
+ ctx.fillStyle=g;ctx.fillRect(bx+1,by+1,(bw-2)*ratio,bh-2);
+ ctx.fillStyle='#ffffff45';ctx.fillRect(bx+1,by+1.2,(bw-2)*ratio,2);
+ ctx.restore();
+ // Ticks every 5 HP
+ ctx.strokeStyle='#0b141c';ctx.lineWidth=1;for(let h=5;h<max;h+=5){const tx=bx+1+(bw-2)*h/max;ctx.beginPath();ctx.moveTo(tx,by+1);ctx.lineTo(tx,by+bh-1);ctx.stroke()}
+ // Badge: dark disc with team-color ring and the HP number
+ const bcx=left+r,bcy=cy;
+ ctx.beginPath();ctx.arc(bcx,bcy,r,0,Math.PI*2);ctx.fillStyle='#0b141c';ctx.fill();ctx.strokeStyle=team;ctx.lineWidth=2.4;ctx.stroke();
+ ctx.beginPath();ctx.arc(bcx,bcy,r+1.2,0,Math.PI*2);ctx.strokeStyle='#ffffffb0';ctx.lineWidth=.9;ctx.stroke();
+ ctx.font='bold 11px system-ui,Arial,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+ ctx.fillStyle=ratio>.6?'#eafff0':ratio>.3?'#fff3c4':'#ffd2cf';ctx.fillText(String(hp),bcx,bcy+.6);
+ ctx.restore();
+}
+function draw(){ctx.clearRect(0,0,W,H);let bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#263d4a');bg.addColorStop(1,'#0f1c2a');ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);ellipse(OX,OY+N*TH*S/2+30,390*S,220*S,'#00000030');for(let s=0;s<=2*(N-1);s++)for(let b=0;b<N;b++){let a=s-b;if(a>=0&&a<N){const [x,y]=unrotXY(a,b);tile(x,y)}}overlays();/* Painter's order: objects farther up-screen are drawn first. This lets a unit below a building cover its lower edge, while a building below a unit is drawn over it. */const renderItems=[];for(const c of camps)renderItems.push({kind:'building',obj:c,depth:point(c.x,c.y).y});for(const u of units){if(u.hp>0)renderItems.push({kind:'unit',obj:u,depth:point(u.x,u.y).y})}renderItems.sort((a,b)=>a.depth-b.depth||(a.kind==='building'?-1:1));for(const item of renderItems){if(item.kind==='building'){const c=item.obj;{const bp=point(c.x,c.y),bcy=bp.y+TH/2;ctx.save();ctx.translate(bp.x,bcy);ctx.scale(BS,BS);ctx.translate(-bp.x,-bcy);(c.fortress?drawFortress(c):c.village?drawVillage(c):drawCamp(c));ctx.restore()}}else warrior(item.obj)}for(const u of units){if(u.hp>0&&!(animation&&animation.capture&&animation.defender===units.indexOf(u)&&animation.progress>.42))drawHealthBar(u)}if(animation)drawAttackFX();if(gatherFX)drawGatherFX();if(!animation&&!gatherFX)drawActionPopup();P.innerHTML=units.slice(0,4).map((u,i)=>`<div class="panel player ${i===turn&&!finished?'active':''} ${u.hp<=0?'dead':''}"><strong style="color:${colors[i][1]}">${['🔵 Blue','🔴 Red','🟡 Gold','🟢 Green'][i]} ${warriorCount(i)} warrior${warriorCount(i)===1?'':'s'} ${u.hp<=0&&teamUnits(i).length===0?'(OUT)':''}</strong><div class="meta"><span>${teamUnits(i).length} active unit(s)</span><span>Stats shown for selected unit below</span></div><div class="meta" style="margin-top:7px"><span>${resourceBadge("wood")} ${u.wood} wood</span><span>${resourceBadge("brick")} ${u.brick} brick</span><span>${resourceBadge("ore")} ${u.ore} ore</span></div><div class="meta" style="margin-top:6px"><span>🪓 ${u.reinforcedAxe?'Reinforced':u.axe?'Basic':'None'} axe</span><span>⛏ ${u.reinforcedPickaxe?'Reinforced':u.pickaxe?'Basic':'None'} pickaxe</span></div></div>`).join('');status.textContent=finished?`🏆 ${['Blue','Red','Gold','Green'][turn]} wins!`:`${['🔵 Blue','🔴 Red','🟡 Gold','🟢 Green'][turn]}'s turn · ${unitSelected?(()=>{const st=unitStats(active());return `Selected ${active().warriorClass.charAt(0).toUpperCase()+active().warriorClass.slice(1)} · ❤️ ${active().hp}/${st.health} HP · MOV ${active().stepsLeft}/${st.movement} · RNG ${st.range} · ATK ${st.attack} · CTR ${st.counter}`})():`No unit selected`} · Round ${round}`;document.getElementById('end').disabled=finished||busy;document.getElementById('craftAxe').disabled=!canCraft('axe');document.getElementById('craftPickaxe').disabled=!canCraft('pickaxe');document.getElementById('reinforceAxe').disabled=!canReinforceTool('axe');document.getElementById('reinforcePickaxe').disabled=!canReinforceTool('pickaxe');updateUnitUpgradeUI();document.getElementById('upgradeWarrior').disabled=!canUpgradeWarrior();document.getElementById('classChoice').disabled=!canSelectUpgradeTarget();updateRecruitPopup();const r=collectable();document.getElementById('resourceHint').textContent=canClaimStructure()?'🚩 Claim ready: click the floating flag above your unit to take this structure.':unitSelected&&camps.some(c=>c.claimUnit===active()&&c.owner!==turn)?'🚩 Occupying an enemy structure — keep this unit here until your next turn begins to unlock its claim.':canFortress()?'🏰 Fortress available: costs 3 ore + 3 wood + 3 brick and ends your turn.':canVillage()?'🏘️ Village available: costs 2 wood + 2 brick + 1 ore and ends your turn.':canCamp()?'⛺ Camp available: costs 1 wood + 1 brick and ends your turn.':r?(r[0]==='wood'&&active().axe<1?'🪵 No axe: '+(active().woodHarvest?'harvest again to finish (turn 2/2).':'wood takes 2 harvesting turns.'):r[0]==='ore'&&active().reinforcedPickaxe<1?'⛏️ Normal pickaxe: '+(active().oreHarvest?'mine again to finish (turn 2/2).':'ore takes 2 mining turns.'):r[0]==='wood'&&active().reinforcedAxe>0?'🪵 Reinforced axe: collect 2 wood this turn.':'Click the resource icon above your warrior to gather '+(r[0]==='ore'?'1 ore':r[0]==='wood'&&active().reinforcedAxe>0?'2 wood':'1 '+r[1].toLowerCase())+'.'):!finished?'Deselect your unit, then click an empty friendly camp, town, or fortress to summon. Camps require 0 Warriors; towns allow fewer than 2 Warriors; fortresses allow fewer than 3.':''} 
+function updateRecruitPopup(){
+ const pop=document.getElementById('recruitPopup'),c=recruitVillage;
+ pop.style.display=c&&!finished?'block':'none';if(!c)return;
+ const kind=document.getElementById('recruitClass').value,free=!occupant(c.x,c.y),can=canRecruit(c,kind);
+ const cost=kind==='warrior'?1:['knight','guard','archer'].includes(kind)?2:3;
+ const advanced=['paladin','catapult','swordsman'].includes(kind);
+ document.getElementById('recruitInfo').textContent=!free?'Building occupied':advanced&&!c.fortress?'Advanced units require a Fortress':kind!=='warrior'&&!advanced&&!c.village?'Special units require a Town':kind==='warrior'&&warriorCount(turn)>=(c.fortress?3:2)?`Maximum ${c.fortress?3:2} Warriors here`:kind==='warrior'&&!c.village&&warriorCount(turn)>0?'Camp requires 0 Warriors':kind!=='warrior'&&['knight','guard','archer'].includes(kind)&&!c.fortress&&classCount(turn,kind)>=1?'Town requires 0 '+kind+' units':kind!=='warrior'&&['knight','guard','archer'].includes(kind)&&c.fortress&&classCount(turn,kind)>=2?'Maximum 2 '+kind+' units':kind!=='warrior'&&advanced&&classCount(turn,kind)>=1?'Maximum 1 '+kind+' unit':units[turn].ore<cost?'Requires '+cost+' ore':'Cost: '+cost+' ore';
+ document.getElementById('recruitConfirm').disabled=!can;
+ const rect=canvas.getBoundingClientRect(),wrap=document.getElementById('boardWrap'),wr=wrap.getBoundingClientRect(),pt=point(c.x,c.y);
+ const cx=canvas.offsetLeft+pt.x*rect.width/W,cy=canvas.offsetTop+(pt.y-28)*rect.height/H;
+ pop.style.left=Math.max(6,Math.min(wrap.clientWidth-226,cx-108))+'px';
+ pop.style.top=Math.max(2,cy-pop.offsetHeight-8)+'px';
+}
+
+document.getElementById('recruitConfirm').onclick=()=>{if(recruitVillage)recruit(recruitVillage)};
+document.getElementById('recruitClass').onchange=()=>{if(recruitVillage)updateRecruitPopup()};
+document.getElementById('classChoice').onchange=()=>draw();
+
+document.getElementById('recruitCancel').onclick=()=>{recruitVillage=null;draw()};
+function popupBounds(u=active()){
+ let r=collectable(u),selected=unitSelected&&u===active(),claim=selected&&canClaimStructure(u),village=selected&&canVillage(),fortress=selected&&canFortress(),camp=selected&&canCamp();
+ if(!r&&!camp&&!village&&!fortress&&!claim)return null;
+ let p=point(u.x,u.y),x=p.x,y=p.y-76;
+ const structure=claim?camps.find(c=>c.x===u.x&&c.y===u.y&&c.owner!==u.id):null;
+ return {x,y,w:40,h:40,r,unit:u,structure,kind:claim?'claim':fortress?'fortress':village?'village':camp?'camp':'gather',icon:claim?'🚩':fortress?'🏰':village?'🏘️':camp?'⛺':r[2]};
+}
+function actionPopups(){return teamUnits(turn).map(u=>popupBounds(u)).filter(Boolean)}
+function drawResourceIcon(kind,x,y,scale=1){
+ ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.lineJoin='round';ctx.lineCap='round';
+ const poly=(pts,fill,stroke='#0005')=>{ctx.beginPath();ctx.moveTo(...pts[0]);for(const p of pts.slice(1))ctx.lineTo(...p);ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=.85;ctx.stroke()}};
+ ctx.fillStyle='#08131a45';ctx.beginPath();ctx.ellipse(1,12,17,3.8,0,0,Math.PI*2);ctx.fill();
+ if(kind==='wood'){
+  // Three stacked, bark-covered round logs, with pale sawn ends facing left.
+  const log=(x,y,len,r,tilt)=>{
+   ctx.save();ctx.translate(x,y);ctx.rotate(tilt);
+   ctx.fillStyle='#3a2b20';ctx.beginPath();ctx.ellipse(len*.48,r*.95,len*.58,r*.34,0,0,Math.PI*2);ctx.fill();
+   const bark=ctx.createLinearGradient(0,-r,0,r);bark.addColorStop(0,'#90775a');bark.addColorStop(.25,'#786249');bark.addColorStop(.55,'#5c4937');bark.addColorStop(.8,'#80694e');bark.addColorStop(1,'#4c3d30');
+   ctx.fillStyle=bark;ctx.beginPath();ctx.moveTo(0,-r);ctx.lineTo(len,-r*.83);ctx.ellipse(len,0,r*.28,r*.85,0,-Math.PI/2,Math.PI/2);ctx.lineTo(0,r);ctx.closePath();ctx.fill();
+   // Smoother bark: soft longitudinal grain instead of heavy cracked ridges.
+   for(let k=0;k<3;k++){let yy=-r*.52+k*r*.5;ctx.strokeStyle=k===1?'#806c54':'#493c30';ctx.globalAlpha=.48;ctx.lineWidth=.55;ctx.beginPath();ctx.moveTo(3,yy);ctx.bezierCurveTo(len*.33,yy-1,len*.72,yy+1,len-2,yy);ctx.stroke()}
+   ctx.globalAlpha=1;
+   ctx.fillStyle='#c6aa79';ctx.strokeStyle='#5b432f';ctx.lineWidth=1.2;ctx.beginPath();ctx.ellipse(0,0,r*.58,r,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+   ctx.fillStyle='#dcc498';ctx.beginPath();ctx.ellipse(-1,-1,r*.45,r*.84,0,0,Math.PI*2);ctx.fill();
+   ctx.strokeStyle='#a4875b';ctx.lineWidth=.6;for(const f of [.32,.58,.78]){ctx.beginPath();ctx.ellipse(-1,-1,r*.45*f,r*.84*f,0,0,Math.PI*2);ctx.stroke()}
+   ctx.strokeStyle='#816440';ctx.beginPath();ctx.moveTo(-1,-1);ctx.lineTo(-r*.23,-r*.65);ctx.stroke();ctx.restore();
+  };
+  // Two aligned lower logs and one centered above; centered within the popup.
+  log(-12,5,23,5.3,0);log(-4,9,23,5.3,0);log(-8,-2,23,5.3,0);
+ }else if(kind==='brick'){
+  // Three identical clay bricks in a precise two-below, one-above stack.
+  // Shared dimensions and perspective keep every brick the same size.
+  const brick=(x,y)=>{
+   const w=17,h=8,dx=5,dy=3;
+   poly([[x,y],[x+w,y],[x+w+dx,y+dy],[x+dx,y+dy]],'#d49a83','#945f4f');
+   poly([[x,y],[x+dx,y+dy],[x+dx,y+dy+h],[x,y+h]],'#a86554','#855044');
+   poly([[x+dx,y+dy],[x+w+dx,y+dy],[x+w+dx,y+dy+h],[x+dx,y+dy+h]],'#b97863','#945b4d');
+   // Quiet handmade clay texture, without distorting the silhouette.
+   ctx.fillStyle='#e2ab94';ctx.globalAlpha=.3;
+   ctx.fillRect(x+dx+4,y+dy+2,3,.7);ctx.fillRect(x+dx+11,y+dy+5,2,.7);
+   ctx.globalAlpha=1;
+  };
+  // Bottom bricks meet edge-to-edge with no horizontal gap. Upper brick is centered over their shared seam.
+  brick(-19.5,1);brick(-2.5,1);brick(-11,-10);
+ }else if(kind==='ore'){
+  // Uneven iron-bearing stone with mineral seams and several shaded facets.
+  poly([[-16,8],[-13,-4],[-4,-12],[4,-10],[10,-4],[15,7],[5,11]],'#44535a');
+  poly([[-16,8],[-13,-4],[-4,-12],[-6,3]],'#849094');
+  poly([[-6,3],[-4,-12],[4,-10],[7,-1]],'#63747b');
+  poly([[7,-1],[4,-10],[10,-4],[15,7]],'#35434a');
+  poly([[-16,8],[-6,3],[7,-1],[5,11]],'#59666a');
+  poly([[5,11],[7,-1],[15,7]],'#2f3d43');
+  ctx.strokeStyle='#a18465';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(-9,3);ctx.lineTo(-2,-1);ctx.lineTo(3,1);ctx.lineTo(9,-4);ctx.stroke();
+  ctx.strokeStyle='#c0a387';ctx.lineWidth=.6;ctx.beginPath();ctx.moveTo(-7,2);ctx.lineTo(-2,-1);ctx.lineTo(2,0);ctx.stroke();
+ }else if(kind==='camp'){
+  // Canvas-drawn tent icon, independent of emoji font and inherited text color.
+  poly([[-15,9],[0,-12],[15,9]],'#d9b477','#634d36');
+  poly([[0,-12],[15,9],[3,9]],'#a77b4e','#634d36');
+  poly([[-5,9],[0,-1],[5,9]],'#554233','#44372b');
+  ctx.strokeStyle='#d9c9a4';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(0,-12);ctx.lineTo(0,-18);ctx.stroke();
+  poly([[0,-18],[10,-15],[0,-12]],'#e2a34f','#77532b');
+ }
+ ctx.restore();
+}
+function drawActionPopup(){for(const b of actionPopups()){ctx.save();ctx.shadowColor='#000b';ctx.shadowBlur=12;ctx.fillStyle='#193241';ctx.strokeStyle=(b.kind==='camp'||b.kind==='village'||b.kind==='fortress'||b.kind==='claim')?'#ffc16c':'#9ce6b4';ctx.lineWidth=1.7;ctx.beginPath();ctx.roundRect(b.x-20,b.y-20,40,40,10);ctx.fill();ctx.stroke();ctx.shadowBlur=0;ctx.beginPath();ctx.moveTo(b.x-6,b.y+20);ctx.lineTo(b.x,b.y+26);ctx.lineTo(b.x+6,b.y+20);ctx.fillStyle='#193241';ctx.fill();if(b.kind==='camp'||b.kind==='village'||b.kind==='fortress'||b.kind==='claim'){ctx.save();ctx.filter='saturate(1.65)';ctx.font='23px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(b.kind==='claim'?'🚩':b.kind==='fortress'?'🏰':b.kind==='village'?'🏘️':'⛺',b.x,b.y+1);ctx.restore()}else{drawResourceIcon(b.r[0],b.x,b.y,.82)}ctx.restore()}}
+function resourceBadge(kind){const svgs={wood:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 28"><defs><linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#91785a"/><stop offset=".55" stop-color="#65503c"/><stop offset="1" stop-color="#4b3b2d"/></linearGradient></defs><g stroke-linejoin="round" stroke="#49382a" stroke-width=".8"><path d="M4 15L26 15L26 25L4 25Z" fill="url(#b)"/><ellipse cx="4" cy="20" rx="3.2" ry="5" fill="#d8bd91"/><ellipse cx="4" cy="20" rx="2" ry="3.2" fill="none" stroke="#a98b64" stroke-width=".5"/><path d="M15 15L33 15L33 25L15 25Z" fill="url(#b)"/><ellipse cx="15" cy="20" rx="3.2" ry="5" fill="#d8bd91"/><ellipse cx="15" cy="20" rx="2" ry="3.2" fill="none" stroke="#a98b64" stroke-width=".5"/><path d="M9.5 4L30 4L30 16L9.5 16Z" fill="url(#b)"/><ellipse cx="9.5" cy="10" rx="4.3" ry="6" fill="#dbc297"/><ellipse cx="9.5" cy="10" rx="2.8" ry="4" fill="none" stroke="#a98b64" stroke-width=".6"/><ellipse cx="9.5" cy="10" rx="1.3" ry="2" fill="none" stroke="#a98b64" stroke-width=".4"/></g></svg>`,brick:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 36"><g stroke="#915b4b" stroke-width=".65" stroke-linejoin="round"><path d="M4 19L20 19L24 22L8 22Z" fill="#d49a83"/><path d="M4 19L8 22L8 30L4 27Z" fill="#a86554"/><path d="M8 22L24 22L24 30L8 30Z" fill="#b97863"/><path d="M20 19L36 19L40 22L24 22Z" fill="#d49a83"/><path d="M20 19L24 22L24 30L20 27Z" fill="#a86554"/><path d="M24 22L40 22L40 30L24 30Z" fill="#b97863"/><path d="M12 8L28 8L32 11L16 11Z" fill="#d49a83"/><path d="M12 8L16 11L16 19L12 16Z" fill="#a86554"/><path d="M16 11L32 11L32 19L16 19Z" fill="#b97863"/></g><g fill="#e2ab94" opacity=".35"><path d="M11 25h4M28 25h4M20 14h4"/></g></svg>`,ore:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 28"><path d="M2 23L5 11L15 2L24 5L32 21L20 27Z" fill="#4d5d63" stroke="#293940"/><path d="M2 23L5 11L15 2L12 17Z" fill="#849197"/><path d="M12 17L15 2L24 5L22 16Z" fill="#66777e"/><path d="M22 16L24 5L32 21L20 27Z" fill="#34444b"/><path d="M6 20L15 14L20 16L27 10" fill="none" stroke="#b39a7c" stroke-width="2"/></svg>`};return '<img alt="" style="width:22px;height:19px;vertical-align:-4px;margin-right:3px" src="data:image/svg+xml,'+encodeURIComponent(svgs[kind])+'">'}
+function drawGatherFX(){
+ const a=gatherFX;if(!a)return;const p=point(a.x,a.y),t=a.progress;
+ const smooth=t*t*(3-2*t),rise=58*smooth;
+ ctx.save();
+ // A subtle harvesting pulse at the resource tile.
+ ctx.strokeStyle=`rgba(195,230,185,${.65*(1-t)})`;ctx.lineWidth=2.5;
+ ctx.beginPath();ctx.ellipse(p.x,p.y+8,11+23*t,5+10*t,0,0,Math.PI*2);ctx.stroke();
+ // The collected material lifts from the terrain and drifts toward the warrior.
+ const cx=p.x+Math.sin(t*Math.PI)*10,cy=p.y-12-rise;
+ ctx.globalAlpha=Math.min(1,(1-t)*4);
+ drawResourceIcon(a.kind,cx,cy,.68+Math.sin(Math.PI*t)*.28);
+ ctx.globalAlpha=1;
+ for(let i=0;i<9;i++){
+  const ang=i*Math.PI*2/9+1.1,dist=7+26*t;
+  const px=cx+Math.cos(ang)*dist,py=cy+Math.sin(ang)*dist*.65;
+  ctx.fillStyle=i%3===0?'#f8dc9c':i%3===1?'#c6e8be':'#e9f5da';
+  ctx.globalAlpha=Math.max(0,1-t);
+  ctx.beginPath();ctx.arc(px,py,1.2+(i%3)*.5,0,Math.PI*2);ctx.fill();
+ }
+ ctx.globalAlpha=Math.max(0,Math.min(1,(t-.42)*4))*(1-Math.max(0,(t-.84)/.16));
+ ctx.font='bold 18px system-ui';ctx.textAlign='center';ctx.lineWidth=3;
+ ctx.strokeStyle='#18303a';const harvestText=a.firstWood?'Harvest 1/2':a.firstOre?'Mine 1/2':'+'+(a.amount||1)+' '+a.label;
+ ctx.strokeText(harvestText,cx,cy-23);
+ ctx.fillStyle='#f6e8bf';ctx.fillText(harvestText,cx,cy-23);
+ ctx.restore();
+}
+function gather(u=active()){
+ const r=collectable(u);if(!r)return;
+ const owner=turn,token=++gatherToken;
+ const slowWood=r[0]==='wood'&&u.axe<1;
+ const slowOre=r[0]==='ore'&&u.reinforcedPickaxe<1;
+ const firstWood=slowWood&&u.woodHarvest===0,firstOre=slowOre&&u.oreHarvest===0;
+ const amount=r[0]==='wood'&&u.reinforcedAxe>0?2:1;
+ soundFX('gather');busy=true;gatherFX={x:u.x,y:u.y,kind:r[0],label:r[1],firstWood,firstOre,amount:(!firstWood&&!firstOre)?amount:1,progress:0};
+ log.textContent=`${['Blue','Red','Gold','Green'][owner]} is ${r[0]==='ore'?'mining':'gathering'} ${r[1].toLowerCase()}...`;
+ const begun=performance.now(),duration=950;
+ function frame(now){
+  if(token!==gatherToken)return;
+  gatherFX.progress=Math.min(1,(now-begun)/duration);
+  draw();
+  if(gatherFX.progress<1){requestAnimationFrame(frame);return}
+  gatherFX=null;
+  if(firstWood){
+   u.woodHarvest=1;
+   log.textContent=`${['Blue','Red','Gold','Green'][owner]} started harvesting wood (turn 1/2). No wood collected yet! Harvest again next turn to earn 1 wood.`;
+  }else if(firstOre){
+   u.oreHarvest=1;
+   log.textContent=`${['Blue','Red','Gold','Green'][owner]} started mining ore (turn 1/2). No ore collected yet! Mine again next turn to earn 1 ore.`;
+  }else{
+   const gained=r[0]==='wood'&&u.reinforcedAxe>0?2:1;
+   u[r[0]]+=gained;
+   if(r[0]==='wood')u.woodHarvest=0;
+   if(r[0]==='ore')u.oreHarvest=0;
+   log.textContent=`${['Blue','Red','Gold','Green'][owner]} collected ${gained} ${r[1].toLowerCase()}${gained===1?'':'s'}. This unit cannot move again this turn.`;
+  }
+  u.collected=true;u.stepsLeft=0;busy=false;soundFX('gatherDone');draw();
+ }
+ requestAnimationFrame(frame);
+}
+function upgradeVillage(){if(!canVillage())return;upgradeIconReady=false;const u=active(),c=camps.find(c=>c.x===u.x&&c.y===u.y&&c.owner===u.id);u.wood-=2;u.brick-=2;u.ore-=1;c.village=true;soundFX('camp');log.textContent=`${['Blue','Red','Gold','Green'][turn]} upgraded their camp into a village!`;next(650)}
+function upgradeFortress(){if(!canFortress())return;upgradeIconReady=false;const u=active(),c=camps.find(c=>c.x===u.x&&c.y===u.y&&c.owner===u.id);u.wood-=3;u.brick-=3;u.ore-=3;c.fortress=true;soundFX('camp');log.textContent=`${['Blue','Red','Gold','Green'][turn]} upgraded their town into a fortress for 3 ore, 3 wood, and 3 brick!`;next(650)}
+function buildCamp(){if(!canCamp())return;soundFX('camp');const u=active();u.wood--;u.brick--;camps.push({x:u.x,y:u.y,owner:u.id});log.textContent=`${['Blue','Red','Gold','Green'][turn]} built a camp for 1 wood and 1 brick!`;next(650)}
+function drawAttackFX(){
+ const a=animation;if(!a)return;
+ const attacker=units[a.attacker],target=units[a.defender],p=point(target.x,target.y),t=a.progress;
+ if(attacker.warriorClass==='catapult'){
+  const from=point(attacker.x,attacker.y),to=point(target.x,target.y);
+  // A cannonball follows a high, arcing path from the catapult to its target.
+  const f=Math.min(1,t/.78),x=from.x+(to.x-from.x)*f,y=from.y+(to.y-from.y)*f- Math.sin(Math.PI*f)*Math.min(115,Math.hypot(to.x-from.x,to.y-from.y)*.22);
+  ctx.save();
+  if(t<.8){
+   ctx.strokeStyle='#f6b45caa';ctx.lineWidth=3;ctx.setLineDash([5,7]);ctx.beginPath();ctx.moveTo(from.x,from.y-15);ctx.quadraticCurveTo((from.x+to.x)/2,(from.y+to.y)/2- Math.min(115,Math.hypot(to.x-from.x,to.y-from.y)*.22)*1.6,to.x,to.y-8);ctx.stroke();ctx.setLineDash([]);
+   ctx.shadowColor='#ff9b36';ctx.shadowBlur=18;ctx.fillStyle='#22252a';ctx.beginPath();ctx.arc(x,y-8,8,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#e6b36e';ctx.lineWidth=2;ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle='#ffca73';ctx.beginPath();ctx.arc(x-2,y-11,2.5,0,Math.PI*2);ctx.fill();
+  }
+  if(t>=.72){const hit=Math.min(1,(t-.72)/.28);ctx.globalAlpha=1-hit*.35;ctx.translate(to.x,to.y+2);ctx.strokeStyle='#ffb64f';ctx.shadowColor='#ff8b32';ctx.shadowBlur=18;ctx.lineWidth=5;ctx.beginPath();ctx.arc(0,0,9+hit*28,-.5,Math.PI*1.6*hit);ctx.stroke();for(let i=0;i<9;i++){let ang=i*2.399+hit*2.5,dist=10+hit*25;ctx.fillStyle=i%2?'#ffe6a0':'#ff873d';ctx.beginPath();ctx.arc(Math.cos(ang)*dist,Math.sin(ang)*dist,Math.max(1,3*(1-hit)),0,Math.PI*2);ctx.fill()}}
+  if(t>.35){ctx.font='bold 22px system-ui';ctx.textAlign='center';ctx.lineWidth=4;ctx.strokeStyle='#17202a';ctx.strokeText('-'+a.damage,p.x,p.y-38-(t-.35)*32);ctx.fillStyle=a.counter?'#8bdfff':'#ffce79';ctx.fillText('-'+a.damage,p.x,p.y-38-(t-.35)*32)}
+  ctx.restore();return;
+ }
+ ctx.save();ctx.beginPath();ctx.rect(p.x-53,p.y-92,106,142);ctx.clip();
+ if(t>.14&&t<.88){let f=(t-.14)/.74;ctx.translate(p.x,p.y+3);ctx.rotate((a.counter?1:-1)*(.85-f*2.1));ctx.strokeStyle=`rgba(${a.counter?'135,220,255':'255,238,169'},${Math.sin(Math.PI*f)})`;ctx.lineWidth=7;ctx.lineCap='round';ctx.shadowBlur=19;ctx.shadowColor=a.counter?'#70caff':'#ffd26e';ctx.beginPath();ctx.arc(0,0,28,-1.2,1.1);ctx.stroke();ctx.strokeStyle='#fff';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(0,0,29,-1.2,1.1);ctx.stroke();ctx.shadowBlur=0;for(let i=0;i<10;i++){let angle=i*2.399+f*2,dist=12+f*(12+i*2);ctx.fillStyle=i%2?'#fff1aa':a.counter?'#76d8ff':'#ff9c50';ctx.beginPath();ctx.arc(Math.cos(angle)*dist,Math.sin(angle)*dist,2.5*(1-f)+.5,0,Math.PI*2);ctx.fill()}}
+ if(t>.35){ctx.font='bold 22px system-ui';ctx.textAlign='center';ctx.strokeStyle='#17202a';ctx.lineWidth=4;let damage='-'+a.damage;ctx.strokeText(damage,p.x,p.y-37-(t-.35)*32);ctx.fillStyle=a.counter?'#8bdfff':'#ffce79';ctx.fillText(damage,p.x,p.y-37-(t-.35)*32)}ctx.restore();
+}
+function playStrike(attacker,defender,damage,counter,capture=false){
+ return new Promise(resolve=>{
+  soundFX(counter?'counter':capture?'capture':'attack');animation={attacker:units.indexOf(attacker),defender:units.indexOf(defender),progress:0,counter,capture,damage};
+  const begun=performance.now();
+  function frame(now){
+   if(!animation)return resolve();
+   animation.progress=Math.min(1,(now-begun)/620);
+   draw();
+   if(animation.progress<1)requestAnimationFrame(frame);
+   else {animation=null;defender.hp=Math.max(0,defender.hp-damage);draw();resolve()}
+  }
+  requestAnimationFrame(frame);
+ });
+}
+async function animateAttack(attacker,defender){
+ // Lock input throughout both animations, even between strikes.
+ busy=true;
+ const captureX=defender.x,captureY=defender.y;
+ const attack=unitStats(attacker),counter=unitStats(defender);
+ const rangedShot=attack.range>0,damage=attack.attack;
+ await playStrike(attacker,defender,damage,false,defender.hp<=damage&&!rangedShot);
+ let msg=`${['Blue','Red','Gold','Green'][attacker.id]} ${attacker.warriorClass} attacks ${['Blue','Red','Gold','Green'][defender.id]} for ${damage}!`;
+ if(defender.hp===0){
+  if(!rangedShot){clearStructureClaimForUnit(attacker);attacker.x=captureX;attacker.y=captureY;if(map[captureY][captureX]!=='forest')attacker.woodHarvest=0;if(map[captureY][captureX]!=='mountain')attacker.oreHarvest=0;msg+=' Enemy defeated — captured their square!';const occupied=beginStructureOccupation(attacker,false);if(occupied)msg+=` You now occupy the enemy ${structureLabel(occupied)}; hold it until your next turn to unlock a claim.`;}
+  else msg+=attacker.warriorClass==='archer'?' Enemy defeated by an arrow!':' Enemy defeated by a cannonball!';
+ }else if(canCounter(defender,attacker)){
+  await new Promise(resolve=>setTimeout(resolve,180));
+  await playStrike(defender,attacker,counter.counter,true);
+  msg+=` ${['Blue','Red','Gold','Green'][defender.id]} ${defender.warriorClass} counterattacks for ${counter.counter}!`;
+  if(attacker.hp===0)msg+=' Attacker defeated!';
+ }else{
+  msg+=counter.counter===0?' The defender cannot counterattack.':' The defender is out of counterattack range.';
+ }
+ log.textContent=msg;busy=false;checkVictory();draw();
+}
+function checkVictory(){const living=units.filter(u=>u.hp>0);if(new Set(living.map(u=>u.id)).size===1){turn=living[0].id;finished=true;soundFX('win');log.textContent='The last warrior standing is victorious!'}}
+let turnSoundToken=0;function next(soundDelay=0){upgradeIconReady=false;recruitVillage=null;let living=units.filter(u=>u.hp>0);if(new Set(living.map(u=>u.id)).size===1){turn=living[0].id;finished=true;soundFX('win');log.textContent='The last warrior standing is victorious!';draw();return}let old=turn;do{turn=(turn+1)%4;if(turn===0)round++}while(!teamUnits(turn).length);selectedUnit=units.findIndex(u=>u.id===turn&&u.hp>0);unitSelected=true;for(const u of teamUnits(turn)){u.stepsLeft=unitStats(u).movement;u.collected=false;u.attacked=false;u.movedThisTurn=false}steps=unitStats(active()).movement;acted=false;refreshStructureClaimsForTurn(turn);const cue=++turnSoundToken;if(soundDelay){setTimeout(()=>{if(cue===turnSoundToken&&!finished)soundFX('turn')},soundDelay)}else soundFX('turn');draw()}
+function moveActive(x,y){const u=active();if(!validMove(x,y))return false;upgradeIconReady=false;soundFX('move');clearStructureClaimForUnit(u);u.movedThisTurn=true;u.x=x;u.y=y;if(map[y][x]!=='forest')u.woodHarvest=0;if(map[y][x]!=='mountain')u.oreHarvest=0;u.stepsLeft--;log.textContent=`Moved one tile. This unit has ${u.stepsLeft} movement step${u.stepsLeft===1?'':'s'} remaining.`;beginStructureOccupation(u,true);recruitVillage=null;draw();return true}
+function click(x,y){
+ if(finished||animation||busy)return;
+ const friendly=occupant(x,y);
+ if(friendly&&friendly.id===turn){
+  recruitVillage=null;
+  if(unitSelected&&selectedUnit===units.indexOf(friendly)){unitSelected=false;upgradeIconReady=false;}
+  else{selectedUnit=units.indexOf(friendly);unitSelected=true;upgradeIconReady=true;}
+  log.textContent=unitSelected?'Unit selected.':'Unit deselected.';draw();return;
+ }
+ const building=camps.find(c=>c.x===x&&c.y===y&&c.owner===turn);
+ // A selected unit moves onto an empty town exactly like any other tile.
+ if(unitSelected&&validMove(x,y)){moveActive(x,y);return;}
+ if(building&&!friendly&&!unitSelected){upgradeIconReady=false;recruitVillage=building;draw();return;}
+ recruitVillage=null;
+ if(unitSelected&&validAttack(x,y)){
+  const u=active();upgradeIconReady=false;u.attacked=true;u.stepsLeft=0;animateAttack(u,occupant(x,y));return;
+ }
+ // Clicking anywhere else clears movement and attack highlights.
+ unitSelected=false;upgradeIconReady=false;draw();
+}
+
+function getCell(mx,my){let xx=(mx-OX)/(TW*S/2),yy=(my-OY)/(TH*S/2);let fx=(xx+yy)/2,fy=(yy-xx)/2;let x=Math.floor(fx),y=Math.floor(fy);if(inside(x,y))return unrotXY(x,y);return null}
+canvas.addEventListener('click',e=>{let r=canvas.getBoundingClientRect(),mx=(e.clientX-r.left)*W/r.width,my=(e.clientY-r.top)*H/r.height;let b=actionPopups().reverse().find(b=>Math.abs(mx-b.x)<=b.w/2&&Math.abs(my-b.y)<=b.h/2+7);if(b){if(b.kind==='claim')claimStructure(b.structure,b.unit);else if(b.kind==='fortress')upgradeFortress();else if(b.kind==='village')upgradeVillage();else if(b.kind==='camp')buildCamp();else gather(b.unit);upgradeIconReady=false;draw();return}let c=getCell(mx,my);if(c)click(...c);else{unitSelected=false;upgradeIconReady=false;recruitVillage=null;draw()}});document.getElementById('end').onclick=()=>{if(!finished&&!animation&&!busy){log.textContent=`${['Blue','Red','Gold','Green'][turn]} ended their turn.`;next()}};const newMapModal=document.getElementById('newMapModal');document.getElementById('newMapCancel').onclick=()=>{newMapModal.style.display='none';};document.getElementById('newMapConfirm').onclick=()=>{newMapModal.style.display='none';start();};newMapModal.addEventListener('click',e=>{if(e.target===newMapModal)newMapModal.style.display='none';});const craftMenuEl=document.getElementById('craftMenu'),craftMenuBtnEl=document.getElementById('craftMenuBtn');craftMenuBtnEl.onclick=()=>{const open=craftMenuEl.style.display!=='block';craftMenuEl.style.display=open?'block':'none';if(open)draw();soundFX('toggle')};document.getElementById('craftMenuClose').onclick=()=>{craftMenuEl.style.display='none';soundFX('toggle')};document.addEventListener('click',e=>{if(craftMenuEl.style.display==='block'&&!craftMenuEl.contains(e.target)&&e.target!==craftMenuBtnEl)craftMenuEl.style.display='none'});document.getElementById('craftAxe').onclick=()=>{craftMenuEl.style.display='none';craftTool('axe')};document.getElementById('craftPickaxe').onclick=()=>{craftMenuEl.style.display='none';craftTool('pickaxe')};document.getElementById('reinforceAxe').onclick=()=>{craftMenuEl.style.display='none';reinforceTool('axe')};document.getElementById('reinforcePickaxe').onclick=()=>{craftMenuEl.style.display='none';reinforceTool('pickaxe')};document.getElementById('upgradeWarrior').onclick=upgradeWarrior;document.getElementById('unitUpgradeIcon').onclick=()=>{const p=document.getElementById('unitUpgradePopup');p.style.display=p.style.display==='block'?'none':'block';updateUnitUpgradeUI();};document.getElementById('upgradeCancel').onclick=()=>document.getElementById('unitUpgradePopup').style.display='none';document.getElementById('classChoice').onchange=()=>{updateUnitUpgradeUI();document.getElementById('upgradeWarrior').disabled=!canUpgradeWarrior();};const rotateView=d=>{viewRot=(viewRot+d+4)%4;draw();};document.getElementById('rotR').onclick=()=>rotateView(1);const homeConfirmModal=document.getElementById('homeConfirmModal');document.getElementById('menuBtn').onclick=()=>{homeConfirmModal.style.display='flex';soundFX('toggle')};document.getElementById('homeConfirmCancel').onclick=()=>{homeConfirmModal.style.display='none';soundFX('toggle')};document.getElementById('homeConfirmLeave').onclick=()=>{homeConfirmModal.style.display='none';if(tutActive)tutFinish();menuScreen.hidden=false;document.body.style.overflow='hidden';soundFX('toggle')};homeConfirmModal.addEventListener('click',e=>{if(e.target===homeConfirmModal)homeConfirmModal.style.display='none'});document.getElementById('quickEnd').onclick=()=>document.getElementById('end').click();document.getElementById('resignBtn').onclick=()=>{if(finished||busy||animation||tutActive)return;document.getElementById('resignTitle').textContent=['Blue','Red','Gold','Green'][turn]+' — resign and forfeit?';document.getElementById('resignModal').style.display='flex'};document.getElementById('resignCancel').onclick=()=>{document.getElementById('resignModal').style.display='none'};document.getElementById('resignModal').addEventListener('click',e=>{if(e.target===document.getElementById('resignModal'))document.getElementById('resignModal').style.display='none'});const statsModalEl=document.getElementById('statsModal');document.getElementById('statsBtn').onclick=()=>{statsModalEl.hidden=false;soundFX('toggle')};document.getElementById('statsClose').onclick=()=>{statsModalEl.hidden=true;soundFX('toggle')};statsModalEl.addEventListener('click',e=>{if(e.target===statsModalEl)statsModalEl.hidden=true});document.getElementById('resignConfirm').onclick=()=>{document.getElementById('resignModal').style.display='none';const resignedId=turn,name=['Blue','Red','Gold','Green'][resignedId];if(!botIds.includes(resignedId))botIds.push(resignedId);selectedUnit=units.findIndex(u=>u.id===resignedId&&u.hp>0);unitSelected=true;log.textContent=name+' resigned. The bot has taken control of '+name+' team!';draw();soundFX('toggle');setTimeout(()=>{if(!finished&&turn===resignedId)botTurn()},250)};window.addEventListener('keydown',e=>{if(!menuScreen.hidden)return;if(e.ctrlKey||e.metaKey||e.altKey||/^(SELECT|INPUT|TEXTAREA)$/.test((e.target.tagName||'')))return;if(e.key==='e'||e.key==='E')rotateView(1);else if(e.key==='q'||e.key==='Q')rotateView(-1)});
+
+
+
+// Enter ends the turn (not while a menu, dialog or popup is open, and never on key-repeat).
+window.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&!tutorialScreen.hidden){tutorialScreen.hidden=true;return}
+ if(e.key!=='Enter'||e.repeat||e.isComposing||e.ctrlKey||e.metaKey||e.altKey)return;
+ if(tutActive){if(e.key==='Escape')tutFinish();return}
+ if(!tutorialScreen.hidden){e.preventDefault();tutorialScreen.hidden=true;return}
+ if(!setupScreen.hidden){e.preventDefault();document.getElementById('startBattle').click();return}
+ if(!menuScreen.hidden){e.preventDefault();localPlayBtn.click();return}
+ const shown=id=>{const el=document.getElementById(id);return el&&el.style.display!=='none'&&getComputedStyle(el).display!=='none'};
+ if(shown('newMapModal')||shown('recruitPopup')||shown('unitUpgradePopup')||shown('resignModal')||shown('statsModal'))return;
+ const t=e.target;if(t&&/^(INPUT|TEXTAREA|SELECT|SUMMARY)$/.test(t.tagName||''))return;
+ e.preventDefault();if(t&&t!==document.body&&t.blur)t.blur();
+ document.getElementById('end').click();
+},true);
+window.addEventListener('resize',()=>updateUnitUpgradeUI());const menuScreen=document.getElementById('menuScreen'),localPlayBtn=document.getElementById('localPlayBtn');localPlayBtn.onclick=()=>{onlineResetTeams();setupScreen.hidden=false;refreshSetup();soundFX('toggle')};const tutorialScreen=document.getElementById('tutorialScreen');document.getElementById('tutorialBtn').onclick=()=>{tutorialScreen.hidden=false;soundFX('toggle')};document.getElementById('tutClose').onclick=()=>{tutorialScreen.hidden=true;soundFX('toggle')};tutorialScreen.addEventListener('click',e=>{if(e.target===tutorialScreen)tutorialScreen.hidden=true});
+// ═══════════ INTERACTIVE TUTORIAL ═══════════
+let tutActive=false,tutDone=false,tutIndex=0;
+const tutBannerEl=document.getElementById('tutBanner'),tutProgEl=document.getElementById('tutProg'),tutTextEl=document.getElementById('tutText'),tutSkipEl=document.getElementById('tutSkip');
+function tutBlue(){return units.find(u=>u.id===0&&u.hp>0)}
+function tutSelectBlue(){selectedUnit=units.findIndex(u=>u.id===0&&u.hp>0);unitSelected=true}
+function tutResetTurn(){
+ units=units.filter(u=>u.id===0);           // clear any tutorial enemies/extra units
+ turn=0;round=1;acted=false;finished=false;animation=null;busy=false;gatherFX=null;recruitVillage=null;
+ const u=tutBlue();u.wood=0;u.brick=0;u.ore=0;
+}
+function tutPlaceBlue(x,y){const u=tutBlue();u.x=x;u.y=y;u.hp=10;u.stepsLeft=unitStats(u).movement;u.collected=false;u.attacked=false;u.movedThisTurn=false;u.woodHarvest=0;u.oreHarvest=0}
+function tutClearArea(){for(let y=4;y<=7;y++)for(let x=4;x<=7;x++)map[y][x]='field'}
+function tutSpawnEnemy(x,y,cls){units.push({x,y,hp:unitStats(cls).health,id:1,warriorClass:cls,stepsLeft:0,collected:true,attacked:true,movedThisTurn:true,woodHarvest:0,oreHarvest:0})}
+const tutSteps=[
+ {id:'select',title:'Selecting Units',
+  text:'This is the battlefield. Click your 🔵 Blue warrior to select it. Clicking a selected unit again deselects it.',
+  setup(){start();tutResetTurn();unitSelected=false;},
+  check(t){return t==='click'&&unitSelected&&units[selectedUnit]&&units[selectedUnit].id===0},
+  nudge(t){if(t==='click')return 'That isn\'t your warrior — click the 🔵 Blue warrior standing in the corner of the map.'}},
+ {id:'move',title:'Moving',
+  text:'Selected units show 🟢 green tiles. Your Warrior has 3 movement steps — click the highlighted forest tile to the RIGHT to move onto it.',
+  setup(){tutResetTurn();tutClearArea();map[5][6]='forest';tutPlaceBlue(5,5);tutSelectBlue();},
+  check(t,d){return t==='move'&&d.ok&&d.x===6&&d.y===5},
+  nudge(t,d){
+   const b=units[0];
+   if(t==='move'&&d.ok){b.x=5;b.y=5;b.stepsLeft=3;draw();return 'Not that way! Click the 🟢 FOREST tile directly to the RIGHT of your warrior.'}
+   if(t==='move')return 'That tile is out of reach — click a 🟢 highlighted tile next to your warrior.';
+   if(t==='click'&&!unitSelected)return 'Select your 🔵 Blue warrior again, then click the forest tile to its RIGHT.'}},
+ {id:'attack',title:'Attacking',
+  text:'An enemy 🔴 Red Warrior is right next to you! Click it (the 🔴 highlighted enemy) to strike for 5 damage.',
+  setup(){tutResetTurn();tutClearArea();tutPlaceBlue(5,5);tutSpawnEnemy(6,5,'warrior');tutSelectBlue();},
+  check(t,d){return t==='attack'&&d.d.hp<d.before.dhp},
+  nudge(t){
+   if(t==='move')return '🚫 Do not move during this step — your enemy is already next to you. Click the 🔴 Red Warrior to attack!';
+   if(t==='click'&&!unitSelected)return 'Select your 🔵 Blue warrior first, then click the 🔴 enemy.'}},
+ {id:'counter',title:'Counterattacks',
+  text:'This 🛡️ Guard has a counter of 7. Attack it — a surviving defender strikes back if you\'re in its range, so watch your health bar!',
+  setup(){tutResetTurn();tutClearArea();tutPlaceBlue(5,5);tutSpawnEnemy(6,5,'guard');tutSelectBlue();},
+  check(t,d){return t==='attack'&&d.a.hp<d.before.ahp},
+  nudge(t){
+   if(t==='move')return '🚫 Do not move during this step — the 🛡️ Guard is already adjacent. Click it to attack and watch the counterattack!';
+   if(t==='click'&&!unitSelected)return 'Select your 🔵 Blue warrior first, then click the 🛡️ Guard.'}},
+ {id:'gather',title:'Gathering Resources',
+  text:'You\'re standing on a 🧱 brick tile. Click the floating 🧱 icon above your warrior to gather 1 brick. Gathering ends this unit\'s movement for the turn.',
+  setup(){tutResetTurn();tutClearArea();map[5][5]='brick';tutPlaceBlue(5,5);tutSelectBlue();},
+  check(t,d){return t==='gather'&&d.u.collected},
+  nudge(t,d){
+   const b=units[0];
+   if(t==='move'&&d.ok){b.x=5;b.y=5;b.stepsLeft=3;draw();return 'No need to move — click the floating 🧱 icon above your warrior.'}
+   if(t==='click')return 'Almost! Click the 🧱 brick icon floating above your warrior\'s head.'}},
+ {id:'craft',title:'Crafting Tools',
+  text:'We gave you 10 wood. The ⚒️ Crafting menu is open beside the Stats button. Click "Craft Axe · 4 Wood". Tools are shared by all your units. Crafting ends your turn.',
+  setup(){tutResetTurn();tutClearArea();tutPlaceBlue(5,5);units[0].wood=10;tutSelectBlue();},
+  check(t,d){return t==='craft'&&d.kind==='axe'},
+  nudge(t){if(t==='click'||t==='move')return 'Craft instead — open the ⚒️ Crafting menu below Stats & Costs and choose Craft Axe.'}},
+ {id:'build',title:'Building a Camp',
+  text:'Camps let you summon reinforcements. With 5 wood and 5 brick in stock, click the floating ⛺ icon above your warrior to build one on this field.',
+  setup(){tutResetTurn();tutClearArea();tutPlaceBlue(5,5);units[0].wood=5;units[0].brick=5;tutSelectBlue();},
+  check(){return camps.some(c=>c.x===5&&c.y===5)},
+  nudge(t,d){
+   const b=units[0];
+   if(t==='move'&&d.ok){b.x=5;b.y=5;b.stepsLeft=3;draw();return 'Build right here — click the floating ⛺ icon above your warrior.'}
+   if(t==='click')return 'Click the ⛺ camp icon floating above your warrior.'}},
+ {id:'end',title:'Ending Your Turn',
+  text:'Last one! Click the ⏩ End Turn button (right edge of the map) to pass play to the next champion. Each new turn refreshes movement and actions.',
+  setup(){tutResetTurn();tutClearArea();tutPlaceBlue(5,5);tutSpawnEnemy(15,15,'warrior');tutSelectBlue();},
+  check(t,d){return t==='next'&&d.to!==0},
+  nudge(t){if(t==='click')return 'Ready? Click the ⏩ End Turn button on the right edge of the map.'}}
+];
+let tutNudgeTimer=null;
+function tutNudge(msg){
+ const n=document.getElementById('tutNudge');if(!n)return;
+ n.textContent='💡 '+msg;n.classList.add('show');
+ clearTimeout(tutNudgeTimer);tutNudgeTimer=setTimeout(()=>n.classList.remove('show'),2800);
+}
+function tutHideNudge(){const n=document.getElementById('tutNudge');clearTimeout(tutNudgeTimer);if(n)n.classList.remove('show')}
+function tutHook(t,d){
+ if(!tutActive||tutDone)return;
+ const s=tutSteps[tutIndex];if(!s)return;
+ d=d||{};
+ if(!(s.check&&s.check(t,d))){
+  // The action didn't complete this step — coach the player with a popup.
+  if(s.nudge){const msg=s.nudge(t,d);if(msg)tutNudge(msg)}
+  return;
+ }
+ tutHideNudge();
+ tutIndex++;
+ if(tutIndex>=tutSteps.length){
+  tutDone=true;tutProgEl.textContent='🎉 Tutorial complete!';
+  tutTextEl.innerHTML='You\'ve mastered the basics, champion. Now claim the battlefield!';
+  tutSkipEl.textContent='🏠 Back to Menu';draw();return;
+ }
+ tutSteps[tutIndex].setup();tutUpdate();draw();
+}
+function tutUpdate(){
+ const s=tutSteps[tutIndex];
+ tutProgEl.textContent='🎓 Step '+(tutIndex+1)+'/'+tutSteps.length;
+ tutTextEl.innerHTML='<b style="color:#d8c687">'+s.title+':</b> '+s.text;
+}
+function startInteractiveTutorial(){
+ menuScreen.hidden=true;document.body.style.overflow='';tutorialScreen.hidden=true;
+ tutActive=true;tutDone=false;tutIndex=0;
+ tutSkipEl.textContent='Skip Tutorial';
+ tutBannerEl.hidden=false;
+ tutSteps[0].setup();tutUpdate();draw();
+ soundFX('toggle');
+}
+function tutFinish(){
+ tutActive=false;tutDone=false;tutBannerEl.hidden=true;
+ start();menuScreen.hidden=false;document.body.style.overflow='hidden';draw();
+}
+tutSkipEl.onclick=()=>{if(tutDone)tutFinish();else{tutFinish()}};
+document.getElementById('tutPlayBtn').onclick=startInteractiveTutorial;
+// Hook the real game functions so steps only complete when the player truly performs the action
+const _tutClick=click; click=function(x,y){const r=_tutClick(x,y);tutHook('click',{x,y});return r};
+const _tutMove=moveActive; moveActive=function(x,y){
+ const step=tutSteps[tutIndex];
+ if(tutActive&&step&&['attack','counter'].includes(step.id)){
+  tutHook('move',{x,y,ok:false});return false;
+ }
+ const r=_tutMove(x,y);tutHook('move',{x,y,ok:r});return r;
+};
+const _tutGather=gather; gather=function(u){if(!u)u=active();const r=_tutGather(u);const tok=gatherToken;const iv=setInterval(()=>{if(gatherToken!==tok){clearInterval(iv);return}if(!busy){clearInterval(iv);tutHook('gather',{u})}},120);return r};
+const _tutCraft=craftTool; craftTool=function(kind){const r=_tutCraft(kind);tutHook('craft',{kind});return r};
+const _tutCamp=buildCamp; buildCamp=function(){const r=_tutCamp();tutHook('build',{});return r};
+const _tutNext=next; next=function(d){const from=turn;const r=_tutNext(d);tutHook('next',{from,to:turn});return r};
+const _tutAtk=animateAttack;
+animateAttack=async function(a,d){const before={ahp:a.hp,dhp:d.hp};const p=_tutAtk(a,d);p.then(()=>tutHook('attack',{a,d,before}));return p};
+// While the tutorial runs, gate the toolbar so only the current step's action is available
+const _tutDraw=draw; draw=function(){_tutDraw();if(!tutActive)return;const s=tutSteps[tutIndex];const id=s?s.id:null;
+ document.getElementById('end').disabled=!s||id!=='end';
+ document.getElementById('craftAxe').disabled=!s||id!=='craft';
+ document.getElementById('craftPickaxe').disabled=!s||id!=='craft';
+ document.getElementById('reinforceAxe').disabled=true;
+ document.getElementById('reinforcePickaxe').disabled=true;
+ document.getElementById('craftMenuBtn').disabled=!s||id!=='craft';
+ document.getElementById('craftMenu').style.display=id==='craft'?'block':'none';
+
+};
+
+// ═══════════ BATTLE SETUP & BOTS ═══════════
+let gamePlayers=4,gameBots=0,botIds=[];
+const setupScreen=document.getElementById('setupScreen'),playerCountEl=document.getElementById('playerCount'),botCountEl=document.getElementById('botCount');
+function refreshSetup(){
+ const p=+playerCountEl.value;let h='';
+ for(let b=0;b<p;b++)h+='<option value="'+b+'"'+(b===Math.min(gameBots,p-1)?' selected':'')+'>'+(b===0?'No bots':b+' bot'+(b>1?'s':''))+'</option>';
+ botCountEl.innerHTML=h;updateSetupHint();
+}
+function updateSetupHint(){
+ const p=+playerCountEl.value,b=+botCountEl.value,hum=p-b;
+ document.getElementById('setupHint').textContent=p+' players — '+hum+' human'+(hum>1?'s':'')+(b?', '+b+' bot'+(b>1?'s':''):'');
+}
+playerCountEl.onchange=refreshSetup;botCountEl.onchange=updateSetupHint;
+document.getElementById('setupBack').onclick=()=>{setupScreen.hidden=true;soundFX('toggle')};
+document.getElementById('startBattle').onclick=()=>{
+ gamePlayers=+playerCountEl.value;gameBots=+botCountEl.value;
+ setupScreen.hidden=true;menuScreen.hidden=true;document.body.style.overflow='';
+ soundFX('toggle');start();
+};
+// Apply player/bot config after every (re)start; inactive champions are eliminated in place
+function applySetup(){
+ botIds=[];
+ for(let i=0;i<4;i++){const h=units[i];if(h)h.hp=i<gamePlayers?unitStats(h).health:0}
+ for(let i=gamePlayers-gameBots;i<gamePlayers;i++)botIds.push(i);
+}
+const _cfgStart=start;
+start=function(){_cfgStart();if(tutActive)return;applySetup();draw()};
+// ── Bot AI ──
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const botName=()=>['Blue','Red','Gold','Green'][turn];
+function botGather(u){
+ if(u.collected||u.movedThisTurn||u.attacked||u.hp<=0)return false;
+ const r=resources[map[u.y][u.x]];if(!r)return false;
+ if(r[0]==='wood'&&u.axe<1&&u.woodHarvest===0){u.woodHarvest=1;u.collected=true;u.stepsLeft=0;log.textContent=botName()+' started harvesting wood (1/2)...';draw();return true}
+ if(r[0]==='ore'&&u.pickaxe>0&&u.reinforcedPickaxe<1&&u.oreHarvest===0){u.oreHarvest=1;u.collected=true;u.stepsLeft=0;log.textContent=botName()+' started mining ore (1/2)...';draw();return true}
+ const gained=r[0]==='wood'&&u.reinforcedAxe>0?2:1;u[r[0]]+=gained;if(r[0]==='wood')u.woodHarvest=0;if(r[0]==='ore')u.oreHarvest=0;u.collected=true;u.stepsLeft=0;
+ log.textContent=botName()+' gathered '+gained+' '+r[1].toLowerCase()+(gained===1?'':'s')+'.';soundFX('gatherDone');draw();return true;
+}
+function botFoesInRange(u){return units.filter(v=>v.hp>0&&v.id!==u.id&&Math.max(Math.abs(v.x-u.x),Math.abs(v.y-u.y))<=attackDistance(u))}
+function botKillTarget(u){
+ const st=unitStats(u);
+ return botFoesInRange(u).filter(f=>f.hp<=st.attack).sort((a,b)=>unitStats(b).attack-unitStats(a).attack)[0]||null;
+}
+function botBestTrade(u){
+ const st=unitStats(u);
+ const scored=botFoesInRange(u).map(f=>{const ts=unitStats(f),d=Math.max(Math.abs(f.x-u.x),Math.abs(f.y-u.y));const ctr=ts.counter>0&&d<=attackDistance(f)?ts.counter:0;return{f,score:st.attack-ctr*1.5-f.hp*.05}});
+ scored.sort((a,b)=>b.score-a.score);
+ // Bots now take available attacks even when the exchange is not perfectly favorable.
+ return scored.length?scored[0].f:null;
+}
+function botCanStep(u,nx,ny){
+ if(!inside(nx,ny)||Math.max(Math.abs(nx-u.x),Math.abs(ny-u.y))!==1||occupant(nx,ny))return false;
+ if(map[ny][nx]==='mountain'&&u.pickaxe<1)return false;
+ const dx=nx-u.x,dy=ny-u.y;
+ if(dx&&dy&&u.pickaxe<1&&map[u.y][nx]==='mountain'&&map[ny][u.x]==='mountain')return false;
+ return true;
+}
+async function botMoveToward(u,tx,ty){
+ while(u.stepsLeft>0&&!u.collected&&!u.attacked&&Math.max(Math.abs(tx-u.x),Math.abs(ty-u.y))>0){
+  const candidates=[[Math.sign(tx-u.x),Math.sign(ty-u.y)],[Math.sign(tx-u.x),0],[0,Math.sign(ty-u.y)],[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]];
+  let moved=false;const seen=new Set();
+  for(const [dx,dy] of candidates){if(!dx&&!dy)continue;const nx=u.x+dx,ny=u.y+dy,key=nx+','+ny;if(seen.has(key))continue;seen.add(key);if(!botCanStep(u,nx,ny))continue;
+   const before=Math.max(Math.abs(tx-u.x),Math.abs(ty-u.y)),after=Math.max(Math.abs(tx-nx),Math.abs(ty-ny));if(after>=before)continue;
+   clearStructureClaimForUnit(u);u.x=nx;u.y=ny;u.stepsLeft--;u.movedThisTurn=true;if(map[ny][nx]!=='forest')u.woodHarvest=0;if(map[ny][nx]!=='mountain')u.oreHarvest=0;beginStructureOccupation(u,true);
+   soundFX('move');draw();await sleep(180);moved=true;break;
+  }
+  if(!moved)break;
+ }
+}
+async function botMove(u){
+ let guard=40;
+ while(u.stepsLeft>0&&!u.collected&&!u.attacked&&guard-->0){
+  const foes=units.filter(v=>v.hp>0&&v.id!==u.id);if(!foes.length)break;
+  foes.sort((a,b)=>Math.max(Math.abs(a.x-u.x),Math.abs(a.y-u.y))-Math.max(Math.abs(b.x-u.x),Math.abs(b.y-u.y)));
+  const f=foes[0],before=Math.max(Math.abs(f.x-u.x),Math.abs(f.y-u.y));
+  await botMoveToward(u,f.x,f.y);
+  if(Math.max(Math.abs(f.x-u.x),Math.abs(f.y-u.y))>=before)break;
+ }
+}
+function botBuilder(){return teamUnits(turn).slice().sort((a,b)=>a.movedThisTurn-b.movedThisTurn)[0]||null}
+function botBuildTarget(owner){return camps.filter(c=>c.owner===owner&&!c.fortress).sort((a,b)=>(a.fortress?1:0)-(b.fortress?1:0))[0]||null}
+async function botDevelopFortress(u){
+ if(u.hp<=0||u.attacked)return false;
+ const home=units[turn];
+ let c=camps.find(c=>c.owner===turn&&c.x===u.x&&c.y===u.y);
+ // Upgrade the same settlement all the way to a fortress before abandoning it.
+ if(c&&!c.village&&home.wood>=2&&home.brick>=2&&home.ore>=1){home.wood-=2;home.brick-=2;home.ore-=1;c.village=true;acted=true;log.textContent=botName()+' upgraded a camp into a village! Fortress construction is next.';soundFX('camp');draw();return true}
+ if(c&&c.village&&!c.fortress&&home.wood>=3&&home.brick>=3&&home.ore>=3){home.wood-=3;home.brick-=3;home.ore-=3;c.fortress=true;acted=true;log.textContent=botName()+' built a mighty fortress! It can now summon elite units.';soundFX('camp');draw();return true}
+ if(!c){
+  // If a settlement is already underway, send the builder back to upgrade it.
+  const target=botBuildTarget(turn);
+  if(target){await botMoveToward(u,target.x,target.y);c=camps.find(v=>v.owner===turn&&v.x===u.x&&v.y===u.y);if(c)return await botDevelopFortress(u)}
+  // Otherwise claim a clear field tile for the first camp.
+  if(home.wood>=1&&home.brick>=1){
+   if(map[u.y][u.x]==='field'&&!camps.some(v=>v.x===u.x&&v.y===u.y)){home.wood--;home.brick--;camps.push({x:u.x,y:u.y,owner:turn});acted=true;log.textContent=botName()+' established a camp as the first step toward a fortress.';soundFX('camp');draw();return true}
+   const fields=[];for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(map[y][x]==='field'&&!occupant(x,y)&&!camps.some(v=>v.x===x&&v.y===y))fields.push({x,y,d:Math.max(Math.abs(x-u.x),Math.abs(y-u.y))});
+   fields.sort((a,b)=>a.d-b.d);if(fields.length){await botMoveToward(u,fields[0].x,fields[0].y);if(map[u.y][u.x]==='field'&&!camps.some(v=>v.x===u.x&&v.y===u.y)){home.wood--;home.brick--;camps.push({x:u.x,y:u.y,owner:turn});acted=true;log.textContent=botName()+' established a camp as the first step toward a fortress.';soundFX('camp');draw();return true}}
+  }
+ }
+ return false;
+}
+function botSummonFromFortress(){
+ const home=units[turn];const c=camps.find(c=>c.owner===turn&&c.fortress&&!occupant(c.x,c.y));if(!c)return false;
+ const choices=['paladin','swordsman','catapult','knight','archer','guard','warrior'];
+ let kind=choices.find(k=>k==='warrior'?warriorCount(turn)<3&&home.ore>=1:['knight','archer','guard'].includes(k)?classCount(turn,k)<2&&home.ore>=2:classCount(turn,k)===0&&home.ore>=3);
+ if(!kind)return false;
+ const cost=kind==='warrior'?1:['knight','archer','guard'].includes(kind)?2:3;home.ore-=cost;
+ const fresh={x:c.x,y:c.y,hp:unitStats(kind).health,id:turn,woodHarvest:0,oreHarvest:0,warriorClass:kind,stepsLeft:0,collected:false,attacked:false,movedThisTurn:false};
+ for(const k of ['wood','brick','ore','axe','pickaxe','reinforcedAxe','reinforcedPickaxe'])Object.defineProperty(fresh,k,{get(){return home[k]},set(v){home[k]=v},enumerable:true});
+ units.push(fresh);log.textContent=botName()+' summoned a '+kind+' from its fortress!';soundFX('camp');draw();return true;
+}
+function botClaimStructure(u){
+ const c=camps.find(v=>v.x===u.x&&v.y===u.y&&v.owner!==u.id&&v.claimUnit===u&&v.claimCandidateOwner===u.id&&v.claimReadyFor===u.id);
+ if(!c||u.hp<=0||u.attacked)return false;
+ const oldOwner=c.owner,label=structureLabel(c);c.owner=u.id;clearStructureClaim(c);u.attacked=true;u.stepsLeft=0;u.collected=true;
+ soundFX('camp');log.textContent=`${['Blue','Red','Gold','Green'][u.id]} claimed the ${label} from ${['Blue','Red','Gold','Green'][oldOwner]}! It now belongs to their team.`;draw();return true;
+}
+async function botAct(u,isBuilder=false){
+ if(finished||u.hp<=0||u.attacked)return false;
+ busy=true;
+ if(botClaimStructure(u))return false;
+ // Attack first whenever a target is in range; do not wait for a perfect trade.
+ let target=botKillTarget(u)||botBestTrade(u);
+ if(target){u.attacked=true;u.stepsLeft=0;log.textContent=botName()+' '+u.warriorClass+' attacks '+['Blue','Red','Gold','Green'][target.id]+'!';draw();await animateAttack(u,target);await sleep(180);return false}
+ // The designated builder prioritizes creating and upgrading a fortress.
+ if(isBuilder&&await botDevelopFortress(u))return true;
+ // Move aggressively toward the nearest opponent, then attack if movement brought one into range.
+ await botMove(u);if(finished)return false;
+ target=botKillTarget(u)||botBestTrade(u);
+ if(target){u.attacked=true;u.stepsLeft=0;log.textContent=botName()+' '+u.warriorClass+' attacks '+['Blue','Red','Gold','Green'][target.id]+'!';draw();await animateAttack(u,target);await sleep(180);return false}
+ if(botGather(u))await sleep(260);
+ return false;
+}
+async function botTurn(){
+ if(finished||tutActive||!botIds.includes(turn))return;
+ busy=true;
+ // Use an empty fortress before spending the turn elsewhere; new units are ready next turn.
+ const summoned=botSummonFromFortress();
+ const builder=botBuilder();let built=false;
+ for(const u of [...teamUnits(turn)]){
+  if(finished)break;
+  if(u.hp<=0)continue;
+  busy=true;const endsTurn=await botAct(u,u===builder);if(endsTurn){built=true;break}await sleep(100);
+ }
+ busy=false;
+ if(!finished){log.textContent=botName()+(built?' finished its fortress upgrade and ended its turn.':summoned?' reinforced from its fortress and ended its turn.':' ended their turn.');next()}
+}
+// trigger bot turns whenever the turn passes to a bot
+const _botNext=next;
+next=function(d){const r=_botNext(d);if(!tutActive&&!finished&&botIds.includes(turn))setTimeout(botTurn,650);return r};
+
+
+// ═══════════ ONLINE MULTIPLAYER ═══════════
+// The normal local game remains unchanged. Online rooms exchange compact game-state
+// snapshots through the Node.js + Socket.IO server in this project.
+let onlineState=null,onlineSyncTimer=null,applyingOnlineSnapshot=false;
+const onlineScreen=document.getElementById('onlineScreen');
+const onlineErrorEl=document.getElementById('onlineError');
+const onlineLobbyEl=document.getElementById('onlineLobby');
+const onlineStartBtn=document.getElementById('onlineStart');
+let teamNames=['Blue','Red','Gold','Green'];
+function onlineCanAct(){return !onlineState||!onlineState.started||(!onlineState.spectator&&onlineState.playerId===turn)}
+function onlineRoomMessage(message){onlineErrorEl.textContent=message||''}
+function onlineGetName(){return (document.getElementById('onlineName').value||'Player').trim().slice(0,18)||'Player'}
+function onlineGetColor(){return document.getElementById('onlineColor').value||'#368cfa'}
+function onlineRememberSeat(){if(onlineState?.roomCode&&onlineState?.playerToken)localStorage.setItem('warriorBattleReconnect',JSON.stringify({roomCode:onlineState.roomCode,playerToken:onlineState.playerToken}))}
+function onlineResetTeams(){teamNames=['Blue','Red','Gold','Green'];colors=[['#368cfa','#a8d7ff'],['#e34d53','#ffc2ac'],['#e0aa37','#fff0a0'],['#36a75c','#b8f5c9']]}
+function onlineApplyPlayers(info){if(!info?.players)return;const defaults=['Blue','Red','Gold','Green'];for(let i=0;i<4;i++){const p=info.players[i];if(!p)continue;teamNames[i]=p.name||defaults[i];const base=p.color||['#368cfa','#e34d53','#e0aa37','#36a75c'][i];const hi=base.replace('#','#');const n=parseInt(hi,16);const lift=v=>Math.min(255,Math.round(v+(255-v)*.48));colors[i]=[base,'#'+[lift(n>>16),lift((n>>8)&255),lift(n&255)].map(v=>v.toString(16).padStart(2,'0')).join('')];}}
+function onlineEnsureSocket(){
+ if(onlineState&&onlineState.socket)return onlineState.socket;
+ if(typeof window.io!=='function'){
+  onlineRoomMessage('Online mode needs the game server. Start it with npm start, then open http://localhost:3000. Local Play still works from this file.');
+  return null;
+ }
+ const socket=window.io();
+ onlineState={socket,roomCode:null,playerId:null,isHost:false,maxPlayers:2,started:false,lastRevision:0};
+ socket.on('connect',()=>{if(onlineState){onlineRoomMessage('Connected to the game server. Create a room or join with a code.');const saved=JSON.parse(localStorage.getItem('warriorBattleReconnect')||'null');if(saved?.roomCode&&saved?.playerToken){socket.emit('room:resume',saved,result=>{if(result?.ok){Object.assign(onlineState,{roomCode:result.roomCode,playerId:result.playerId,playerToken:result.playerToken,isHost:result.hostPlayerId===result.playerId,maxPlayers:result.maxPlayers,started:!!result.started,lastRevision:result.revision||0});onlineApplyPlayers(result);if(result.started&&result.snapshot)onlineStartGame(result.snapshot);else onlineRenderRoom(result);onlineRoomMessage('Reconnected to your match!')}else localStorage.removeItem('warriorBattleReconnect')})}}});
+ socket.on('connect_error',()=>onlineRoomMessage('Could not connect to the game server. Check that the website server is running.'));
+ socket.on('disconnect',()=>onlineRoomMessage('Connection lost. Reconnect to the game server to continue.'));
+ socket.on('room:update',info=>{if(!onlineState||info.roomCode!==onlineState.roomCode)return;onlineRenderRoom(info)});
+ socket.on('room:host-changed',info=>{if(!onlineState)return;onlineState.isHost=info.hostPlayerId===onlineState.playerId;onlineRoomMessage(onlineState.isHost?'The previous host left. You are now the room host.':'The room host changed.')});
+ socket.on('room:game-started',data=>{
+  if(!onlineState||onlineState.started)return;
+  onlineApplyPlayers(data.room);
+  onlineState.maxPlayers=data.room?.maxPlayers||onlineState.maxPlayers;
+  onlineState.lastRevision=data.revision||0;
+  onlineStartGame(data.snapshot);
+ });
+ socket.on('room:state',data=>{
+  if(!onlineState||!onlineState.started||!data||data.revision<=onlineState.lastRevision)return;
+  onlineState.lastRevision=data.revision;
+  onlineApplySnapshot(data.snapshot);
+ });
+ socket.on('matchmaking:found',info=>{if(!onlineState)return;Object.assign(onlineState,{roomCode:info.roomCode,playerId:info.playerId,playerToken:info.playerToken,isHost:info.hostPlayerId===info.playerId,maxPlayers:info.maxPlayers,started:false,lastRevision:0});onlineRememberSeat();onlineApplyPlayers(info);onlineRenderRoom(info);onlineRoomMessage('Opponent found! Your private lobby is ready.')});
+ socket.on('room:player-left',data=>{
+  const name=data&&data.name?data.name:'A player';
+  const notice=document.getElementById('onlineGameNotice');
+  if(notice)notice.textContent=`🌐 Room ${onlineState?.roomCode||''} · ${name} disconnected. Their seat is open for someone to rejoin.`;
+ });
+ socket.on('room:error',data=>onlineRoomMessage(data?.message||'Online room error.'));
+ return socket;
+}
+function onlineRenderRoom(info){
+ if(!onlineState)return;
+ onlineState.maxPlayers=info.maxPlayers;
+ onlineApplyPlayers(info);
+ onlineState.isHost=info.hostPlayerId===onlineState.playerId;
+ document.getElementById('onlineCodeDisplay').textContent=info.roomCode;
+ const lines=[];
+ for(let i=0;i<info.maxPlayers;i++){
+  const player=info.players[i];
+  const label=player?player.name:'Open seat';
+  const you=player&&player.playerId===onlineState.playerId?' · YOU':'';
+  const host=player&&player.playerId===info.hostPlayerId?' · HOST':'';
+  lines.push(`${['Blue','Red','Gold','Green'][i]}: ${label}${you}${host}${player&&!player.connected?' · RECONNECTING':''}`);
+ }
+ document.getElementById('onlinePlayers').innerHTML=lines.join('<br>');
+ onlineLobbyEl.hidden=false;
+ const count=info.players.filter(Boolean).length;
+ document.getElementById('onlineWaitText').textContent=info.started?'Match in progress. Rejoining the room...':`${count}/${info.maxPlayers} players connected. Share the room code with friends.`;
+ onlineStartBtn.hidden=!onlineState.isHost||info.started;
+ onlineStartBtn.disabled=count<2;
+ document.getElementById('onlineCreate').disabled=true;
+ document.getElementById('onlineJoin').disabled=true;
+ document.getElementById('onlinePlayerCount').disabled=true;
+ document.getElementById('onlineJoinCode').disabled=true;
+ onlineRoomMessage('Room ready. The host can start once at least two players have joined.');
+}
+function onlineOpenScreen(){
+ menuScreen.hidden=true;onlineScreen.hidden=false;document.body.style.overflow='hidden';
+ onlineLobbyEl.hidden=true;onlineRoomMessage('');
+ document.getElementById('onlineCreate').disabled=false;
+ document.getElementById('onlineJoin').disabled=false;
+ document.getElementById('onlinePlayerCount').disabled=false;
+ document.getElementById('onlineJoinCode').disabled=false;
+ onlineEnsureSocket();soundFX('toggle');
+}
+function onlineCreateRoom(){
+ const socket=onlineEnsureSocket();if(!socket)return;
+ if(!socket.connected){onlineRoomMessage('Connecting to server... Try again in a moment.');return}
+ socket.emit('room:create',{maxPlayers:Number(document.getElementById('onlinePlayerCount').value),playerName:onlineGetName(),color:onlineGetColor()},result=>{
+  if(!result?.ok){onlineRoomMessage(result?.message||'Could not create room.');return}
+  Object.assign(onlineState,{roomCode:result.roomCode,playerId:result.playerId,playerToken:result.playerToken,isHost:true,maxPlayers:result.maxPlayers,started:false,lastRevision:0});
+  onlineRememberSeat();onlineApplyPlayers(result);onlineRenderRoom(result);
+ });
+}
+function onlineJoinRoom(){
+ const socket=onlineEnsureSocket();if(!socket)return;
+ if(!socket.connected){onlineRoomMessage('Connecting to server... Try again in a moment.');return}
+ const code=document.getElementById('onlineJoinCode').value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
+ if(code.length!==6){onlineRoomMessage('Enter the six-character room code.');return}
+ socket.emit('room:join',{roomCode:code,playerName:onlineGetName(),color:onlineGetColor()},result=>{
+  if(!result?.ok){onlineRoomMessage(result?.message||'Could not join room.');return}
+  Object.assign(onlineState,{roomCode:result.roomCode,playerId:result.playerId,playerToken:result.playerToken,isHost:result.hostPlayerId===result.playerId,maxPlayers:result.maxPlayers,started:!!result.started,lastRevision:result.revision||0});
+  onlineRememberSeat();onlineApplyPlayers(result);onlineRenderRoom(result);
+  if(result.started&&result.snapshot)onlineStartGame(result.snapshot);
+ });
+}
+function onlineSerializeGame(){
+ return {
+  map:map.map(row=>row.slice()),
+  units:units.map(u=>({...u})),
+  camps:camps.map(c=>{const out={...c};out.claimUnitIndex=c.claimUnit?units.indexOf(c.claimUnit):-1;delete out.claimUnit;return out}),
+  turn,steps,finished,round,acted,selectedUnit,unitSelected,
+  gamePlayers
+ };
+}
+function onlineRestoreGame(snapshot){
+ if(!snapshot||!Array.isArray(snapshot.map)||!Array.isArray(snapshot.units))return false;
+ map=snapshot.map.map(row=>row.slice());
+ units=snapshot.units.map(u=>({...u}));
+ // Recreate the shared team inventory accessors used by summoned units.
+ const inventoryKeys=['wood','brick','ore','axe','pickaxe','reinforcedAxe','reinforcedPickaxe'];
+ for(let owner=0;owner<4;owner++){
+  const owned=units.filter(u=>u.id===owner);if(owned.length<2)continue;
+  const home=owned[0];
+  for(const u of owned.slice(1))for(const key of inventoryKeys){
+   Object.defineProperty(u,key,{enumerable:true,configurable:true,get(){return home[key]},set(value){home[key]=value}});
+  }
+ }
+ camps=snapshot.camps.map(c=>({...c,claimUnit:null}));
+ snapshot.camps.forEach((c,i)=>{const index=Number(c.claimUnitIndex);if(Number.isInteger(index)&&index>=0&&index<units.length)camps[i].claimUnit=units[index]});
+ turn=snapshot.turn;steps=snapshot.steps;finished=!!snapshot.finished;round=snapshot.round||1;acted=!!snapshot.acted;
+ selectedUnit=Number.isInteger(snapshot.selectedUnit)?snapshot.selectedUnit:units.findIndex(u=>u.id===turn&&u.hp>0);
+ if(!units[selectedUnit]||units[selectedUnit].hp<=0||units[selectedUnit].id!==turn)selectedUnit=units.findIndex(u=>u.id===turn&&u.hp>0);
+ unitSelected=!!snapshot.unitSelected;
+ if(selectedUnit<0){selectedUnit=0;unitSelected=false}
+ animation=null;busy=false;gatherFX=null;recruitVillage=null;upgradeIconReady=false;hover=null;
+ gamePlayers=snapshot.gamePlayers||onlineState?.maxPlayers||2;gameBots=0;botIds=[];
+ if(typeof turnSoundToken!=='undefined')turnSoundToken++;
+ return true;
+}
+function onlineStartGame(snapshot){
+ if(!onlineState)return;
+ onlineState.started=false;
+ gamePlayers=onlineState.maxPlayers;gameBots=0;botIds=[];
+ setupScreen.hidden=true;onlineScreen.hidden=true;menuScreen.hidden=true;document.body.style.overflow='';
+ start();
+ if(!onlineRestoreGame(snapshot)){onlineRoomMessage('Could not load the match state.');return}
+ onlineState.started=true;
+ const notice=document.getElementById('onlineGameNotice');
+ notice.hidden=false;notice.textContent=onlineState.spectator?`👁️ Spectating · Room ${onlineState.roomCode}`:`🌐 Online Match · Room ${onlineState.roomCode} · You are ${teamNames[onlineState.playerId]}`;document.getElementById('onlineSaveInGame').hidden=!!onlineState.spectator;
+ draw();
+}
+function onlineApplySnapshot(snapshot){
+ if(!onlineState||!onlineState.started)return;
+ applyingOnlineSnapshot=true;
+ try{onlineRestoreGame(snapshot);draw()}finally{applyingOnlineSnapshot=false}
+}
+function onlineSendSnapshot(actorId){
+ if(!onlineState||!onlineState.started||applyingOnlineSnapshot||onlineState.playerId!==actorId||!onlineState.socket.connected)return;
+ onlineState.socket.emit('room:state',onlineSerializeGame(),result=>{
+  if(!result?.ok&&result?.message&&onlineState&&onlineState.started){onlineRoomMessage(result.message)}
+  if(result?.revision&&onlineState)onlineState.lastRevision=Math.max(onlineState.lastRevision,result.revision);
+ });
+}
+function onlineScheduleSync(){
+ if(!onlineState||!onlineState.started||applyingOnlineSnapshot||onlineState.playerId!==turn)return;
+ if(onlineSyncTimer)clearTimeout(onlineSyncTimer);
+ onlineSyncTimer=setTimeout(()=>{
+  onlineSyncTimer=null;
+  if(!onlineState||!onlineState.started||applyingOnlineSnapshot||onlineState.playerId!==turn||busy||animation||gatherFX)return;
+  onlineSendSnapshot(turn);
+ },180);
+}
+function onlineHostStart(){
+ if(!onlineState||!onlineState.isHost||onlineState.started)return;
+ const startBtn=onlineStartBtn;startBtn.disabled=true;
+ gamePlayers=onlineState.maxPlayers;gameBots=0;botIds=[];
+ setupScreen.hidden=true;onlineScreen.hidden=true;menuScreen.hidden=true;document.body.style.overflow='';
+ start();
+ const snapshot=onlineSerializeGame();
+ onlineState.socket.emit('room:start-game',snapshot,result=>{
+  if(!result?.ok){onlineRoomMessage(result?.message||'Could not start the match.');onlineScreen.hidden=false;menuScreen.hidden=true;startBtn.disabled=false;return}
+  onlineState.lastRevision=result.revision||1;
+  onlineStartGame(snapshot);
+ });
+}
+
+function onlineQuickMatch(){const socket=onlineEnsureSocket();if(!socket)return;if(!socket.connected){onlineRoomMessage('Connecting to server…');return}onlineRoomMessage('Searching for an opponent…');socket.emit('matchmaking:join',{maxPlayers:Number(document.getElementById('onlinePlayerCount').value),playerName:onlineGetName(),color:onlineGetColor()},result=>{if(!result?.ok){onlineRoomMessage(result?.message||'Matchmaking failed.');return}if(result.waiting){onlineRoomMessage('Searching for an opponent. Keep this window open…');document.getElementById('onlineQuickMatch').textContent='Searching…';}else{Object.assign(onlineState,{roomCode:result.roomCode,playerId:result.playerId,playerToken:result.playerToken,isHost:result.hostPlayerId===result.playerId,maxPlayers:result.maxPlayers,started:false,lastRevision:0});onlineRememberSeat();onlineApplyPlayers(result);onlineRenderRoom(result)}})}
+function onlineBrowseMatches(){const socket=onlineEnsureSocket();if(!socket)return;const box=document.getElementById('onlineExtraList');box.hidden=false;box.innerHTML='<p class="onlineSmall">Loading active public matches…</p>';socket.emit('rooms:public',list=>{if(!list?.length){box.innerHTML='<p class="onlineSmall">No public matches are currently running. Start one with Find Public Match.</p>';return}box.innerHTML='<strong>Active public matches</strong>';for(const r of list){const b=document.createElement('button');b.style.cssText='display:block;width:100%;margin:7px 0;text-align:left';b.textContent=`👁️ Watch ${r.roomCode} · ${r.players.filter(Boolean).length}/${r.maxPlayers} players`;b.onclick=()=>onlineSpectate(r.roomCode);box.appendChild(b)}})}
+function onlineSpectate(code){const socket=onlineEnsureSocket();if(!socket)return;socket.emit('room:spectate',{roomCode:code},result=>{if(!result?.ok){onlineRoomMessage(result?.message||'Could not join as spectator.');return}localStorage.removeItem('warriorBattleReconnect');Object.assign(onlineState,{roomCode:result.roomCode,playerId:null,playerToken:null,isHost:false,maxPlayers:result.maxPlayers,started:false,lastRevision:result.revision||0,spectator:true});onlineApplyPlayers(result);onlineStartGame(result.snapshot);onlineRoomMessage('You are watching this match. You cannot move units or change the game.')})}
+function onlineShowSaves(){const socket=onlineEnsureSocket();if(!socket)return;const box=document.getElementById('onlineExtraList');box.hidden=false;box.innerHTML='<p class="onlineSmall">Loading saved matches…</p>';socket.emit('saves:list',list=>{box.innerHTML='<strong>Saved matches on this server</strong>';if(!list?.length){box.innerHTML+='<p class="onlineSmall">No saved matches yet. Save an online match from its lobby/game.</p>';return}for(const save of list){const b=document.createElement('button');b.style.cssText='display:block;width:100%;margin:7px 0;text-align:left';b.textContent=`▶ ${save.name} · ${new Date(save.updated).toLocaleString()}`;b.onclick=()=>socket.emit('room:load-save',{id:save.id,playerName:onlineGetName(),color:onlineGetColor()},result=>{if(!result?.ok){onlineRoomMessage(result?.message||'Could not load save.');return}Object.assign(onlineState,{roomCode:result.roomCode,playerId:result.playerId,playerToken:result.playerToken,isHost:true,maxPlayers:result.maxPlayers,started:false,lastRevision:result.revision||0,spectator:false});onlineRememberSeat();onlineApplyPlayers(result);onlineStartGame(result.snapshot) });box.appendChild(b)}})}
+function onlineSaveMatch(){if(!onlineState?.started||onlineState.spectator)return;const name=prompt('Name this saved match:',`Warrior Battle ${onlineState.roomCode}`);if(name===null)return;onlineState.socket.emit('room:save',{name},result=>onlineRoomMessage(result?.ok?'Match saved on this server.':(result?.message||'Could not save match.')))}
+
+function onlineLeaveRoom(){
+ if(onlineSyncTimer){clearTimeout(onlineSyncTimer);onlineSyncTimer=null}
+ if(onlineState?.socket){onlineState.socket.emit('matchmaking:cancel');document.getElementById('onlineQuickMatch').textContent='⚔️ Find Public Match'}
+ if(onlineState?.roomCode)onlineState.socket.emit('room:leave');
+ if(onlineState?.roomCode===JSON.parse(localStorage.getItem('warriorBattleReconnect')||'null')?.roomCode)localStorage.removeItem('warriorBattleReconnect');
+ if(onlineState){onlineState.roomCode=null;onlineState.playerId=null;onlineState.isHost=false;onlineState.started=false;onlineState.lastRevision=0}
+ document.getElementById('onlineGameNotice').hidden=true;document.getElementById('onlineSaveInGame').hidden=true;
+ onlineLobbyEl.hidden=true;
+ document.getElementById('onlineCreate').disabled=false;
+ document.getElementById('onlineJoin').disabled=false;
+ document.getElementById('onlinePlayerCount').disabled=false;
+ document.getElementById('onlineJoinCode').disabled=false;
+}
+
+// Guard every game action so a browser can only change the shared match on its team's turn.
+const _onlineClick=click;click=function(x,y){if(!onlineCanAct())return false;return _onlineClick(x,y)};
+const _onlineNext=next;next=function(...args){
+ if(!onlineCanAct())return;
+ const actor=turn;
+ const result=_onlineNext(...args);
+ // A turn-ending action changes `turn` immediately, so the old active client
+ // must still submit that final handoff snapshot before losing its turn.
+ if(onlineState?.started&&onlineState.playerId===actor){
+  if(onlineSyncTimer){clearTimeout(onlineSyncTimer);onlineSyncTimer=null}
+  onlineSendSnapshot(actor);
+ }
+ return result;
+};
+const _onlineGather=gather;gather=function(...args){if(!onlineCanAct())return false;return _onlineGather(...args)};
+const _onlineCraftTool=craftTool;craftTool=function(...args){if(!onlineCanAct())return;return _onlineCraftTool(...args)};
+const _onlineReinforceTool=reinforceTool;reinforceTool=function(...args){if(!onlineCanAct())return;return _onlineReinforceTool(...args)};
+const _onlineUpgradeWarrior=upgradeWarrior;upgradeWarrior=function(...args){if(!onlineCanAct())return;return _onlineUpgradeWarrior(...args)};
+const _onlineBuildCamp=buildCamp;buildCamp=function(...args){if(!onlineCanAct())return;return _onlineBuildCamp(...args)};
+const _onlineUpgradeVillage=upgradeVillage;upgradeVillage=function(...args){if(!onlineCanAct())return;return _onlineUpgradeVillage(...args)};
+const _onlineUpgradeFortress=upgradeFortress;upgradeFortress=function(...args){if(!onlineCanAct())return;return _onlineUpgradeFortress(...args)};
+const _onlineClaimStructure=claimStructure;claimStructure=function(...args){if(!onlineCanAct())return;return _onlineClaimStructure(...args)};
+const _onlineRecruit=recruit;recruit=function(...args){if(!onlineCanAct())return;return _onlineRecruit(...args)};
+const _onlineDraw=draw;draw=function(){
+ _onlineDraw();
+ if(onlineState?.started){
+  const myTurn=!onlineState.spectator&&onlineState.playerId===turn;
+  document.getElementById('quickEnd').disabled=!myTurn||finished||busy;
+  document.getElementById('end').disabled=!myTurn||finished||busy;
+  document.getElementById('craftMenuBtn').disabled=!myTurn||finished||busy;
+  document.getElementById('unitUpgradeIcon').disabled=!myTurn||finished||busy;
+  document.getElementById('resignBtn').disabled=true;
+  onlineScheduleSync();
+ }
+};
+
+document.getElementById('onlineBtn').onclick=onlineOpenScreen;
+document.getElementById('onlineCreate').onclick=onlineCreateRoom;
+document.getElementById('onlineQuickMatch').onclick=onlineQuickMatch;
+document.getElementById('onlineSpectateList').onclick=onlineBrowseMatches;
+document.getElementById('onlineSavedList').onclick=onlineShowSaves;
+document.getElementById('onlineSaveMatch').onclick=onlineSaveMatch;
+document.getElementById('onlineSaveInGame').onclick=onlineSaveMatch;
+document.getElementById('onlineJoin').onclick=onlineJoinRoom;
+document.getElementById('onlineWatchCode').onclick=()=>onlineSpectate(document.getElementById('onlineJoinCode').value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6));
+onlineStartBtn.onclick=onlineHostStart;
+document.getElementById('onlineCopyCode').onclick=()=>{
+ const code=document.getElementById('onlineCodeDisplay').textContent;
+ if(navigator.clipboard?.writeText)navigator.clipboard.writeText(code).then(()=>onlineRoomMessage('Room code copied!')).catch(()=>onlineRoomMessage('Copy this code manually: '+code));
+ else onlineRoomMessage('Share this room code: '+code);
+};
+document.getElementById('onlineBack').onclick=()=>{
+ onlineLeaveRoom();onlineScreen.hidden=true;menuScreen.hidden=false;document.body.style.overflow='hidden';onlineRoomMessage('');soundFX('toggle');
+};
+document.getElementById('homeConfirmLeave').addEventListener('click',()=>{if(onlineState?.roomCode)onlineLeaveRoom()});
+
+document.body.style.overflow='hidden';start();})();
+</script></body></html>
